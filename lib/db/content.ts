@@ -4,6 +4,16 @@ import { db } from '@/db';
 import { contents, userContents } from '@/drizzle/schema';
 import { and, desc, eq } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
+export interface WebhookCredentials {
+  id: string;
+  user_id: string;
+  url: string;
+  secret_key: string;
+  trigger_event: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
 
 interface ScheduledJob {
   jobType: string;
@@ -440,5 +450,81 @@ export async function saveContentFromSchedules(
       });
   } catch (error) {
     console.error(`Error saving content version for ID ${contentId} with Drizzle:`, error);
+  }
+}
+
+
+export async function saveWebhookCredentials(hookData: WebhookCredentials) {
+  try {
+    const supabase = await createClient();
+
+    const { data: userData, error: authError } = await supabase.auth.getUser();
+
+    if (authError || !userData?.user) {
+      console.error('Authentication Error:', authError?.message || 'User not logged in.');
+      throw new Error('User authentication required to save webhooks.');
+    }
+
+    const userId = userData.user.id;
+
+    const dataToSave = {
+      id: hookData.id ? hookData.id : crypto.randomUUID(),
+      user_id: userId,
+      url: hookData.url,
+      secret_key: hookData.secret_key, // Assuming this is already encrypted (mock or real)
+      trigger_event: hookData.trigger_event,
+      is_active: hookData.is_active,
+      updated_at: new Date().toISOString(),
+    };
+
+    const { data, error } = await supabase
+      .from('api_integrations')
+      .upsert(dataToSave, {
+        onConflict: 'user_id, id',
+        ignoreDuplicates: false,
+      })
+      .select();
+
+    if (error) {
+      console.error('Supabase Upsert Error:', error.message);
+      throw new Error(`Database save failed: ${error.message}`);
+    }
+
+    console.log('Webhook successfully saved/updated:', data[0]);
+    return data[0];
+
+  } catch (error) {
+    console.error('saveWebhookToSupabase execution failed:', error.message);
+    throw error;
+  }
+}
+
+export async function getWebhookCredentials() {
+  try {
+    const supabase = await createClient();
+
+    const { data: userData, error: authError } = await supabase.auth.getUser();
+
+    if (authError || !userData?.user) {
+      console.error('Authentication Error:', authError?.message || 'User not logged in.');
+      throw new Error('User authentication required to save webhooks.');
+    }
+
+    const userId = userData.user.id;
+
+    const { data, error } = await supabase
+      .from('api_integrations')
+      .select()
+      .eq('user_id', userId);
+
+    if (error) {
+      console.error('Supabase select Error:', error.message);
+      throw new Error(`Database fetch failed: ${error.message}`);
+    }
+
+    return  data;
+  }catch (error) {
+    console.error('Webhook fetch execution failed:', error.message);
+    throw error;
   }
 }

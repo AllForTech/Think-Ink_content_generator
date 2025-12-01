@@ -22,6 +22,9 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { saveWebhookCredentials } from '@/lib/db/content';
+import { toast } from 'sonner';
+import { useContent } from '@/context/GenerationContext';
 
 // Mock Encryption/Decryption Utility (Simulating secure storage/retrieval)
 const mockEncrypt = (data) => `ENC:${btoa(data)}`;
@@ -71,7 +74,9 @@ const WebhookFormDialog = ({ isOpen, onClose, initialData, onSave, status, messa
   }, [initialData]);
 
   useEffect(() => {
-    setMessageBox({ message, status })
+    const timer = setTimeout(()  => setMessageBox({ message, status }), 300);
+
+    return () => clearTimeout(timer);
   }, [status, message]);
 
 
@@ -81,7 +86,6 @@ const WebhookFormDialog = ({ isOpen, onClose, initialData, onSave, status, messa
     try {
       const url = new URL(formData.url.trim());
       if (url.protocol !== 'https:') {
-        // Using console.error instead of alert as per instructions
         console.error("Validation Error: Only HTTPS URLs are permitted for security.");
         // setMessageBox('Validation Error: Only HTTPS URLs are permitted for security.', 'error');
         return;
@@ -221,17 +225,17 @@ const WebhookFormDialog = ({ isOpen, onClose, initialData, onSave, status, messa
 
 // --- Main Webhook Manager Component ---
 export const WebhookManager = () => {
-  // Initialize state with mock data. We decrypt for display purposes.
-  const [webhooks, setWebhooks] = useState(initialMockWebhooks.map(h => ({
-    ...h,
-    secret_key: mockDecrypt(h.secret_key),
-  })));
+  const {
+    webhookCredentials: webhooks,
+    setWebhookCredentials: setWebhooks,
+    isWebhookCredentialsLoading
+  } = useContent();
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingWebhook, setEditingWebhook] = useState(null);
 
   // UI Status State (used for global actions like delete or toggle)
-  const [status, setStatus] = useState('idle'); // 'idle', 'loading', 'success', 'error'
+  const [status, setStatus] = useState<'idle'| 'loading'| 'success'| 'error'>('idle');
   const [message, setMessage] = useState('');
 
   // --- CRUD Handlers (Local State Management) ---
@@ -247,18 +251,19 @@ export const WebhookManager = () => {
     setIsDialogOpen(true);
   };
 
-  const handleSave = (data) => {
+  const handleSave = async (data) => {
     setStatus('loading');
     setMessage(data.id ? 'Updating webhook...' : 'Creating new webhook...');
 
-    // Simulate async operation delay
-    setTimeout(() => {
+    try {
       const dataToSave = {
         ...data,
         // Re-encrypt the key before saving to mock persistent storage
         secret_key: mockEncrypt(data.secret_key),
         updated_at: Date.now(),
       };
+
+      await saveWebhookCredentials(dataToSave);
 
       setWebhooks(prevHooks => {
         if (data.id) {
@@ -286,7 +291,12 @@ export const WebhookManager = () => {
         setIsDialogOpen(false);
       }, 1000);
 
-    }, 500); // Mock network delay
+    }catch (e) {
+      toast.error(e.message || "Error saving webhook...");
+      setMessage("Error saving webhook...")
+    }finally {
+
+    }
   };
 
   const handleDelete = (id) => {
@@ -353,9 +363,9 @@ export const WebhookManager = () => {
             <p className="text-lg font-medium text-neutral-700">{message}</p>
           </div>
         ) : (
-          <ScrollArea className="flex flex-col space-y-4 max-h-full pr-3">
+          <ScrollArea className="flex flex-col space-y-4 max-h-[78dvh] rounded-lg pr-3">
             {webhooks.length === 0 ? (
-              <div className="text-center p-12 border border-neutral-200 rounded-lg bg-white shadow-sm">
+              <div className="text-center p-8 border border-neutral-200 rounded-lg bg-white shadow-sm">
                 <Database className="h-10 w-10 text-neutral-400 mx-auto mb-3" />
                 <p className="text-lg font-medium text-neutral-700">No webhooks configured.</p>
                 <p className="text-xs text-neutral-500">

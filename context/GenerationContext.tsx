@@ -6,7 +6,12 @@ import { toast } from 'sonner';
 import { ReadonlyURLSearchParams, useParams, useRouter, useSearchParams } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
 import { useAuth } from '@/context/AuthContext';
-import { getGeneratedContents, getScheduledJobs } from '@/lib/db/content';
+import {
+  getGeneratedContents,
+  getScheduledJobs,
+  getWebhookCredentials,
+  WebhookCredentials,
+} from '@/lib/db/content';
 import { SystemPromptOption } from '@/components/Layout/Dashboard/Generate/AISystemConfig';
 import { predefinedPrompts } from '@/lib/AI/ai.system.prompt';
 import { refinePrompt } from '@/lib/AI/ai.actions';
@@ -118,6 +123,11 @@ interface GenerationContextType {
   onRefinePrompt: () => Promise<string>;
 
   triggerWebhookDispatch: () => Promise<void>;
+
+  webhookCredentials: WebhookCredentials[];
+  setWebhookCredentials: (webhooks: WebhookCredentials[]) => void;
+  isWebhookCredentialsLoading: boolean,
+  setIsWebhookCredentialsLoading: (prev?: boolean) => void;
 }
 
 // --- 2. Create the Context with Default Values ---
@@ -150,11 +160,14 @@ export function ContextProvider({ children }: { children: ReactNode }) {
   const [isViewingGoal, setIsViewingGoal] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [prompt, setPrompt] = useState('');
+  const [webhookCredentials, setWebhookCredentials] = useState<WebhookCredentials[]>([]);
+  const [isWebhookCredentialsLoading, setIsWebhookCredentialsLoading] = useState(false);
   const [selectedPrompt, setSelectedPrompt] = useState<SystemPromptOption>(predefinedPrompts[0]);
 
   useEffect(() => {
     fetchContents();
     fetchScheduledJobs();
+    fetchWebhookCredentials()
   }, []);
 
   const fetchContents = useCallback(async () => {
@@ -188,6 +201,22 @@ export function ContextProvider({ children }: { children: ReactNode }) {
       setIsSchedulesLoading(false);
     }
   }, [setScheduledJobs]);
+
+  const fetchWebhookCredentials = useCallback(async () => {
+    setIsWebhookCredentialsLoading(true);
+    try {
+      const credentials = await getWebhookCredentials();
+      if (credentials) {
+        setWebhookCredentials(credentials);
+      } else {
+        setWebhookCredentials([]);
+      }
+    } catch (e) {
+      toast.error(e.message || 'Error fetching webhook credentials');
+    } finally {
+      setIsWebhookCredentialsLoading(false);
+    }
+  }, [setWebhookCredentials]);
 
   // The function to call the Next.js API Route
   const generateContent = async (
@@ -494,7 +523,11 @@ export function ContextProvider({ children }: { children: ReactNode }) {
     onRefinePrompt,
     isDialogOpen,
     setIsDialogOpen,
-    triggerWebhookDispatch
+    triggerWebhookDispatch,
+    webhookCredentials,
+    setWebhookCredentials,
+    isWebhookCredentialsLoading,
+    setIsWebhookCredentialsLoading,
   };
 
   return <GenerationContext.Provider value={value}>{children}</GenerationContext.Provider>;
