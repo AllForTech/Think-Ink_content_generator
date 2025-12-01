@@ -21,6 +21,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 // Mock Encryption/Decryption Utility (Simulating secure storage/retrieval)
 const mockEncrypt = (data) => `ENC:${btoa(data)}`;
@@ -33,7 +34,6 @@ const defaultWebhook = {
   secret_key: crypto.randomUUID(), // Auto-generate a strong initial secret
   is_active: true,
 };
-
 // --- Mock Data Setup ---
 const initialMockWebhooks = [
   {
@@ -119,7 +119,7 @@ const WebhookFormDialog = ({ isOpen, onClose, initialData, onSave, status, messa
         {/* Status Indicator */}
         {messageBox.status !== 'idle' && messageBox.message && (
           <div className={cn(
-            "p-4 mx-6 mt-4 rounded-lg text-sm flex items-center",
+            "p-4 mx-6 mt-4 rounded-lg text-xs flex items-center",
             messageBox.status === 'loading' && "bg-neutral-100 text-neutral-700",
             messageBox.status === 'error' && "bg-red-50 text-red-600 border border-red-200",
             messageBox.status === 'success' && "bg-green-50 text-green-700 border border-green-200",
@@ -135,12 +135,13 @@ const WebhookFormDialog = ({ isOpen, onClose, initialData, onSave, status, messa
         <div className="p-6 space-y-4">
 
           {/* URL Input */}
-          <div>
-            <Label htmlFor="url">Destination Endpoint URL</Label>
+          <div className={'space-y-2.5'}>
+            <Label icon={Link} className={'text-xs'} htmlFor="url">Destination Endpoint URL</Label>
             <Input
               id="url"
               type="url"
               value={formData.url}
+              className={'text-xs'}
               onChange={(e) => setFormData(prev => ({ ...prev, url: e.target.value }))}
               placeholder="https://yourcms.com/api/webhooks/ingest"
               disabled={messageBox.status === 'loading'}
@@ -151,20 +152,20 @@ const WebhookFormDialog = ({ isOpen, onClose, initialData, onSave, status, messa
           </div>
 
           {/* Secret Key Input */}
-          <div>
-            <Label htmlFor="secret" icon={Key}>Secret Key / Validation Token</Label>
+          <div className={'space-y-2.5'}>
+            <Label htmlFor="secret" className={'text-xs'} icon={Key}>Secret Key / Validation Token</Label>
             <div className="flex space-x-2">
               <Input
                 id="secret"
                 type="text"
                 value={formData.secret_key}
+                className={'text-xs'}
                 onChange={(e) => setFormData(prev => ({ ...prev, secret_key: e.target.value }))}
                 placeholder="Automatically generated secure token"
                 disabled={messageBox.status === 'loading'}
               />
               <Button
                 onClick={() => {
-                  // Clipboard function replacement for iFrame safety
                   if (typeof document.execCommand === 'function') {
                     const textarea = document.createElement('textarea');
                     textarea.value = formData.secret_key;
@@ -178,7 +179,7 @@ const WebhookFormDialog = ({ isOpen, onClose, initialData, onSave, status, messa
                     setMessageBox({ message: "Copy failed. Browser not supported.", status: 'error' });
                   }
                 }}
-                className="h-10 px-3 bg-neutral-100 text-neutral-700 hover:bg-neutral-200 rounded-md text-sm transition-colors flex items-center"
+                className="h-10 px-3  bg-neutral-100 text-neutral-700 hover:bg-neutral-200 rounded-md text-xs transition-colors flex items-center"
                 title="Copy Key"
                 variant="secondary"
               >
@@ -189,13 +190,13 @@ const WebhookFormDialog = ({ isOpen, onClose, initialData, onSave, status, messa
 
           {/* Trigger and Active Status (Read-Only) */}
           <div className="flex space-x-4">
-            <div className="flex-1">
-              <Label htmlFor="trigger" icon={Zap}>Trigger Event</Label>
-              <Input id="trigger" value={formData.trigger_event} readOnly className="bg-neutral-100 text-neutral-600" />
+            <div className="flex-1 space-y-2.5">
+              <Label htmlFor="trigger" className={'text-xs'} icon={Zap}>Trigger Event</Label>
+              <Input id="trigger" value={formData.trigger_event} readOnly className="bg-neutral-100 text-xs text-neutral-600" />
             </div>
-            <div className="flex-1">
+            <div className="flex-1 space-y-2.5">
               <Label htmlFor="active" icon={formData.is_active ? ToggleRight : ToggleLeft}>Status</Label>
-              <Input id="active" value={formData.is_active ? 'Active' : 'Disabled'} readOnly className={cn("text-sm font-medium", formData.is_active ? "text-green-600 bg-green-50" : "text-neutral-500 bg-neutral-100")} />
+              <Input id="active" value={formData.is_active ? 'Active' : 'Disabled'} readOnly className={cn("text-xs font-medium", formData.is_active ? "text-green-600 bg-green-50" : "text-neutral-500 bg-neutral-100")} />
             </div>
           </div>
         </div>
@@ -203,10 +204,10 @@ const WebhookFormDialog = ({ isOpen, onClose, initialData, onSave, status, messa
         {/* Dialog Footer */}
         <div className="flex justify-end p-6 border-t border-neutral-200 bg-neutral-50 rounded-b-xl">
           <div className="flex space-x-2">
-            <Button variant="secondary" onClick={() => {onClose(); setMessageBox({message: '', status: 'idle'})}} disabled={messageBox.status === 'loading'}>
+            <Button className={cn('transition-300 hover:bg-neutral-300 rounded-sm text-xs')} onClick={() => {onClose(); setMessageBox({message: '', status: 'idle'})}} disabled={messageBox.status === 'loading'}>
               Cancel
             </Button>
-            <Button variant="primary" onClick={handleSave} disabled={messageBox.status === 'loading'}>
+            <Button  className={cn('bg-black transition-300 text-xs rounded-sm hover:bg-neutral-800')} onClick={handleSave} disabled={messageBox.status === 'loading'}>
               {messageBox.status === 'loading' ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
               {isEditing ? 'Save Changes' : 'Add Webhook'}
             </Button>
@@ -320,14 +321,14 @@ export const WebhookManager = () => {
 
   return (
     <div className="p-2 bg-neutral-50 min-h-screen font-sans">
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-5xl mx-auto">
         {/* Header and Add Button */}
         <div className="flex items-center justify-between border-b pb-4 mb-6 border-neutral-200">
           <h1 className="text-2xl font-bold text-neutral-900 flex items-center">
             <Zap className="mr-2 h-6 w-6 text-black" />
             Webhook Integrations
           </h1>
-          <Button variant="primary" onClick={startCreate} disabled={status === 'loading'}>
+          <Button  className={cn('bg-black transition-300 text-xs rounded-sm hover:bg-neutral-800')}  onClick={startCreate} disabled={status === 'loading'}>
             <Plus className="h-4 w-4 mr-2" /> Add New Webhook
           </Button>
         </div>
@@ -335,7 +336,7 @@ export const WebhookManager = () => {
         {/* Global Status Display */}
         {message && status !== 'idle' && status !== 'loading' && (
           <div className={cn(
-            "p-3 mb-4 rounded-lg text-sm flex items-center",
+            "p-3 mb-4 rounded-lg text-xs flex items-center",
             status === 'error' && "bg-red-50 text-red-600 border border-red-200",
             status === 'success' && "bg-green-50 text-green-700 border border-green-200",
           )}>
@@ -352,12 +353,12 @@ export const WebhookManager = () => {
             <p className="text-lg font-medium text-neutral-700">{message}</p>
           </div>
         ) : (
-          <div className="flex flex-col space-y-4 max-h-[70vh] overflow-y-auto pr-2">
+          <ScrollArea className="flex flex-col space-y-4 max-h-full pr-3">
             {webhooks.length === 0 ? (
               <div className="text-center p-12 border border-neutral-200 rounded-lg bg-white shadow-sm">
                 <Database className="h-10 w-10 text-neutral-400 mx-auto mb-3" />
                 <p className="text-lg font-medium text-neutral-700">No webhooks configured.</p>
-                <p className="text-sm text-neutral-500">
+                <p className="text-xs text-neutral-500">
                   Start automating by adding your first content ingestion endpoint.
                 </p>
               </div>
@@ -366,8 +367,8 @@ export const WebhookManager = () => {
                 <div
                   key={hook.id}
                   className={cn(
-                    "flex flex-col border rounded-xl bg-white p-4 shadow-sm transition-shadow",
-                    hook.is_active ? 'border-black/50 hover:shadow-lg' : 'border-neutral-300 hover:shadow-md'
+                    "flex flex-col border rounded-xl mb-4 bg-white p-3 shadow-sm transition-300",
+                    hook.is_active ? 'border-neutral-400 hover:shadow-lg' : 'border-neutral-300  opacity-70 hover:opacity-100 hover:shadow-md'
                   )}
                 >
                   <div className="flex justify-between items-start mb-2">
@@ -384,15 +385,15 @@ export const WebhookManager = () => {
                         <div className="text-lg font-semibold text-neutral-900 flex items-center">
                           {hook.is_active ? 'Active' : 'Disabled'} Integration
                         </div>
-                        <div className="text-sm text-neutral-500 flex items-center">
+                        <div className="text-xs text-neutral-500 flex items-center">
                           <Calendar className="h-3 w-3 mr-1" />
-                          {new Date(hook.created_at || hook.updated_at).toLocaleDateString()}
+                          {new Date(hook.created_at).toLocaleDateString()}
                         </div>
                       </div>
                     </div>
 
                     {/* Action Buttons */}
-                    <div className="flex space-x-2">
+                    <div className="flex space-x-2.5">
                       <Button variant="secondary" onClick={() => startEdit(hook)} className="h-8 px-2.5" title="Edit Webhook">
                         <Edit className="h-4 w-4" />
                       </Button>
@@ -420,7 +421,7 @@ export const WebhookManager = () => {
                 </div>
               ))
             )}
-          </div>
+          </ScrollArea>
         )}
       </div>
 
@@ -430,7 +431,7 @@ export const WebhookManager = () => {
         onClose={() => setIsDialogOpen(false)}
         initialData={editingWebhook}
         onSave={handleSave}
-        status={'idle'} // Global status doesn't apply to dialog's internal actions
+        status={'idle'}
         message={''}
       />
     </div>
