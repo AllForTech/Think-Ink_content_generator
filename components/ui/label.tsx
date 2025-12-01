@@ -5,7 +5,8 @@ import * as LabelPrimitive from '@radix-ui/react-label';
 
 import { cn } from '@/lib/utils';
 
-function Label({ className, ...props }: React.ComponentProps<typeof LabelPrimitive.Root>) {
+function Label({ icon, className = '', children, ...props }) {
+  const IconComponent = icon ? icon : null
   return (
     <LabelPrimitive.Root
       data-slot="label"
@@ -14,7 +15,10 @@ function Label({ className, ...props }: React.ComponentProps<typeof LabelPrimiti
         className,
       )}
       {...props}
-    />
+    >
+      {icon && <IconComponent size={15}/>}
+      {children}
+    </LabelPrimitive.Root>
   );
 }
 

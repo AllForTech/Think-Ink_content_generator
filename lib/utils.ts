@@ -76,3 +76,39 @@ export const generateCronString = (frequency: string, timeStr: string): string =
       return `${minute} ${hour} * * *`;
   }
 };
+
+
+export function isPrivateIP(ip) {
+  if (!ip) return true; // Safety check
+
+  // Parse the IP segments
+  const parts = ip.split('.').map(Number);
+  if (parts.length !== 4) return true;
+
+  // A CIDR range checker:
+  const privateRanges = [
+    // 10.0.0.0/8 (Private Class A)
+    [10, 0, 0, 0, 10, 255, 255, 255],
+    // 172.16.0.0/12 (Private Class B)
+    [172, 16, 0, 0, 172, 31, 255, 255],
+    // 192.168.0.0/16 (Private Class C)
+    [192, 168, 0, 0, 192, 168, 255, 255],
+    // 127.0.0.0/8 (Loopback)
+    [127, 0, 0, 0, 127, 255, 255, 255],
+    // 169.254.0.0/16 (Link-local)
+    [169, 254, 0, 0, 169, 254, 255, 255],
+  ];
+
+  const ipNum = parts[0] * 256**3 + parts[1] * 256**2 + parts[2] * 256 + parts[3];
+
+  for (const [startA, startB, startC, startD, endA, endB, endC, endD] of privateRanges) {
+    const startNum = startA * 256**3 + startB * 256**2 + startC * 256 + startD;
+    const endNum = endA * 256**3 + endB * 256**2 + endC * 256 + endD;
+
+    if (ipNum >= startNum && ipNum <= endNum) {
+      return true;
+    }
+  }
+
+  return false;
+}

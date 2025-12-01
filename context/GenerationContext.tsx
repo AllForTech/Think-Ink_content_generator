@@ -116,6 +116,8 @@ interface GenerationContextType {
   setIsDialogOpen: (prev?: boolean) => void;
 
   onRefinePrompt: () => Promise<string>;
+
+  triggerWebhookDispatch: () => Promise<void>;
 }
 
 // --- 2. Create the Context with Default Values ---
@@ -411,6 +413,40 @@ export function ContextProvider({ children }: { children: ReactNode }) {
     setIsRefineLoading(false);
   }, [prompt, setPrompt]);
 
+  // --- Webhook Trigger Function ---
+  async function triggerWebhookDispatch(hookConfig, contentPayload) {
+    const decryptedSecret = ""
+    const apiCallBody = {
+      destinationUrl: hookConfig.url,
+      secretKey: decryptedSecret, // The key we use for target validation
+      payload: contentPayload,     // The content we are sending
+    };
+
+    try {
+      const response = await fetch('/api/execute-webhook', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(apiCallBody),
+      });
+
+      const result = await response.json();
+
+      if (!result.success) {
+        console.error(`Webhook execution failed on server: ${result.error}`);
+        toast.error('Webhook execution failed on server');
+        return;
+      }
+
+      console.log(`Webhook successfully dispatched to ${hookConfig.url}`);
+      toast.error('Webhook successfully dispatched');
+      // Show success message!
+
+    } catch (error) {
+      console.error("Local network error calling webhook API:", error);
+      toast.error('Local network error calling webhook API');
+    }
+  }
+
   const value = {
     generatedContent,
     isLoading,
@@ -458,6 +494,7 @@ export function ContextProvider({ children }: { children: ReactNode }) {
     onRefinePrompt,
     isDialogOpen,
     setIsDialogOpen,
+    triggerWebhookDispatch
   };
 
   return <GenerationContext.Provider value={value}>{children}</GenerationContext.Provider>;
