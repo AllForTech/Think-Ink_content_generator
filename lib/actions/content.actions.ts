@@ -71,7 +71,7 @@ export async function updateContent(contentId: string, newContent: string) {
   }
 }
 
-export async function makeRequest(url: string, options: any) {
+export async function makeRequest(url: string, options: never) {
 
   try {
     return await axios.post(url, options);
@@ -80,3 +80,4 @@ export async function makeRequest(url: string, options: any) {
     throw e;
   }
 }
+
