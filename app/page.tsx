@@ -1,8 +1,8 @@
-import MonoHero from '@/components/Landing/MonoHero';
-import MonoFeatures from '@/components/Landing/MonoFeatures';
-import MonoTestimonials from '@/components/Landing/MonoTestimonials';
-import MonoCTA from '@/components/Landing/MonoCTA';
-import MonoFooter from '@/components/Landing/MonoFooter';
+import MonoHero from '@/components/Landing/Hero';
+import MonoFeatures from '@/components/Landing/Features';
+import AutomationIntegrationSection from '@/components/Landing/AutomationIntegrationSection';
+import MonoCTA from '@/components/Landing/CTA';
+import MonoFooter from '@/components/Landing/Footer';
 import { Navbar } from '@/components/Landing/Navbar';
 import { cn } from '@/lib/utils';
 import { Metadata } from 'next';
@@ -65,7 +65,7 @@ export default function LandingPage() {
         {/* <Navbar /> */}
         <MonoHero />
         <MonoFeatures />
-        <MonoTestimonials />
+        <AutomationIntegrationSection />
         <MonoCTA />
         <MonoFooter />
       </div>
