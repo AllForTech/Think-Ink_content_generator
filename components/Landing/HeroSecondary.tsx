@@ -43,7 +43,7 @@ const Hero = () => {
               height={100}
               src="/assets/hero_image.png" // Replace with the actual path to your image
               alt="AI Content Generator Interface"
-              className="!h-auto !w-full"
+              className="h-auto! w-full!"
             />
           </div>
 
