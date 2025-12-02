@@ -1,5 +1,7 @@
 'use client'
 import React, { useState, useEffect } from 'react';
+import {DropdownMenu, DropdownMenuContent, DropdownMenuTrigger, DropdownMenuItem } from '@/components/ui/dropdown-menu'
+import {Switch} from '@/components/ui/switch'
 import {
   Zap,
   Link,
@@ -15,6 +17,9 @@ import {
   ToggleLeft,
   ToggleRight,
   Clipboard,
+  Eye,
+  EyeOff,
+  ChevronDown,
   Calendar,
 } from 'lucide-react';
 import { Label } from '@/components/ui/label';
@@ -22,7 +27,8 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { saveWebhookCredentials } from '@/lib/db/content';
+import { Skeleton } from '@/components/ui/skeleton';
+import { deleteWebhookCredential, saveWebhookCredentials, WebhookCredentials } from '@/lib/db/content';
 import { toast } from 'sonner';
 import { useContent } from '@/context/GenerationContext';
 
@@ -37,34 +43,34 @@ const defaultWebhook = {
   secret_key: crypto.randomUUID(), // Auto-generate a strong initial secret
   is_active: true,
 };
-// --- Mock Data Setup ---
-const initialMockWebhooks = [
-  {
-    id: 'hook_1',
-    url: 'https://staging.cms-backend.io/api/ingest',
-    secret_key: mockEncrypt('MyCmsSecretToken'),
-    trigger_event: 'content.complete',
-    is_active: true,
-    created_at: Date.now() - 86400000,
-  },
-  {
-    id: 'hook_2',
-    url: 'https://dev.marketing-tool.net/receive-updates',
-    secret_key: mockEncrypt('MarketingApi123'),
-    trigger_event: 'content.complete',
-    is_active: false,
-    created_at: Date.now() - 3600000,
-  },
+
+const TRIGGER_EVENTS = [
+  { value: 'content.complete', label: 'Content Generation Complete' },
+  { value: 'content.published', label: 'Content Published' },
+  { value: 'content.draft', label: 'Content Saved as Draft' },
 ];
 
 // --- Dialog Component (Simulating shadcn/ui Dialog) ---
-const WebhookFormDialog = ({ isOpen, onClose, initialData, onSave, status, message }) => {
+interface WebhookFormDialogProps {
+  isOpen: boolean;
+  onClose: () => void;
+  initialData?: any | null;
+  onSave: (data: any) => void;
+  status: 'idle' | 'loading' | 'success' | 'error';
+  message: string;
+}
+
+const WebhookFormDialog = ({ isOpen, onClose, initialData, onSave, status, message }: WebhookFormDialogProps) => {
   const [formData, setFormData] = useState(initialData || defaultWebhook);
+  // Local state for the message box to handle self-closing copy notifications
   const [messageBox, setMessageBox] = useState({ message: message, status: status });
+  // control whether secret is shown or masked
+  const [showSecret, setShowSecret] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   // Update form data if initialData changes (e.g., when editing starts)
   useEffect(() => {
-    // We decrypt the key for presentation in the form
+    // Decrypt the key for presentation in the form
     const decryptedData = initialData ? {
       ...initialData,
       secret_key: mockDecrypt(initialData.secret_key)
@@ -73,9 +79,10 @@ const WebhookFormDialog = ({ isOpen, onClose, initialData, onSave, status, messa
     setFormData(decryptedData);
   }, [initialData]);
 
+  // Sync global status message to local message box state
   useEffect(() => {
-    const timer = setTimeout(()  => setMessageBox({ message, status }), 300);
-
+    // Added a slight delay for better transition visibility if needed
+    const timer = setTimeout(() => setMessageBox({ message, status }), 50); 
     return () => clearTimeout(timer);
   }, [status, message]);
 
@@ -87,18 +94,18 @@ const WebhookFormDialog = ({ isOpen, onClose, initialData, onSave, status, messa
       const url = new URL(formData.url.trim());
       if (url.protocol !== 'https:') {
         console.error("Validation Error: Only HTTPS URLs are permitted for security.");
-        // setMessageBox('Validation Error: Only HTTPS URLs are permitted for security.', 'error');
+        setMessageBox({ message: 'Validation Error: Only HTTPS URLs are permitted for security.', status: 'error' });
         return;
       }
     } catch(e) {
       console.error("Validation Error: Please provide a valid URL.");
-      // setMessageBox('Validation Error: Please provide a valid URL.', 'error');
+      setMessageBox({ message: 'Validation Error: Please provide a valid URL.', status: 'error' });
       return;
     }
 
     if (!formData.secret_key) {
       console.error("Validation Error: Secret key is required.");
-      // setMessageBox('Validation Error: Secret key is required.', 'error');
+      setMessageBox({ message: 'Validation Error: Secret key is required.', status: 'error' });
       return;
     }
 
@@ -106,6 +113,12 @@ const WebhookFormDialog = ({ isOpen, onClose, initialData, onSave, status, messa
   };
 
   const isEditing = !!initialData?.id;
+
+  // Handler to safely close dialog and clear local messages
+  const handleClose = () => {
+      setMessageBox({message: '', status: 'idle'});
+      onClose();
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-neutral-900/40 p-4 backdrop-blur-sm">
@@ -115,7 +128,7 @@ const WebhookFormDialog = ({ isOpen, onClose, initialData, onSave, status, messa
           <h3 className="text-xl font-semibold text-neutral-900">
             {isEditing ? 'Edit Webhook Integration' : 'Add New Webhook'}
           </h3>
-          <button onClick={() => {onClose(); setMessageBox({message: '', status: 'idle'})}} className="text-neutral-500 hover:text-black">
+          <button onClick={handleClose} className="text-neutral-500 hover:text-black">
             <X className="h-5 w-5" />
           </button>
         </div>
@@ -161,46 +174,97 @@ const WebhookFormDialog = ({ isOpen, onClose, initialData, onSave, status, messa
             <div className="flex space-x-2">
               <Input
                 id="secret"
-                type="text"
+                type={showSecret ? 'text' : 'password'}
                 value={formData.secret_key}
                 className={'text-xs'}
                 onChange={(e) => setFormData(prev => ({ ...prev, secret_key: e.target.value }))}
                 placeholder="Automatically generated secure token"
                 disabled={messageBox.status === 'loading'}
               />
-              <Button
-                onClick={() => {
-                  if (typeof document.execCommand === 'function') {
-                    const textarea = document.createElement('textarea');
-                    textarea.value = formData.secret_key;
-                    document.body.appendChild(textarea);
-                    textarea.select();
-                    document.execCommand('copy');
-                    document.body.removeChild(textarea);
-                    setMessageBox({ message: "Secret Key copied to clipboard!", status: 'success' });
-                    setTimeout(() => setMessageBox({ message: '', status: 'idle' }), 1000);
-                  } else {
-                    setMessageBox({ message: "Copy failed. Browser not supported.", status: 'error' });
-                  }
-                }}
-                className="h-10 px-3  bg-neutral-100 text-neutral-700 hover:bg-neutral-200 rounded-md text-xs transition-colors flex items-center"
-                title="Copy Key"
-                variant="secondary"
-              >
-                <Clipboard className="w-4 h-4 mr-1" /> Copy
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button
+                  onClick={async () => {
+                    try {
+                      const text = formData.secret_key || '';
+                      if (navigator.clipboard && navigator.clipboard.writeText) {
+                        await navigator.clipboard.writeText(text);
+                      } else if (typeof document.execCommand === 'function') {
+                        const textarea = document.createElement('textarea');
+                        textarea.value = text;
+                        document.body.appendChild(textarea);
+                        textarea.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(textarea);
+                      } else {
+                        throw new Error('Clipboard not available');
+                      }
+
+                      setMessageBox({ message: 'Secret Key copied to clipboard!', status: 'success' });
+                      setTimeout(() => setMessageBox({ message: '', status: 'idle' }), 1000);
+                    } catch (err) {
+                      setMessageBox({ message: 'Copy failed. Browser not supported.', status: 'error' });
+                    }
+                  }}
+                  className="h-10 px-3  bg-neutral-100 text-neutral-700 hover:bg-neutral-200 rounded-md text-xs transition-colors flex items-center"
+                  title="Copy Key"
+                  variant="secondary"
+                >
+                  <Clipboard className="w-4 h-4 mr-1" /> Copy
+                </Button>
+
+                <Button
+                  onClick={() => setShowSecret(s => !s)}
+                  className="h-10 px-3  bg-neutral-100 text-neutral-700 hover:bg-neutral-200 rounded-md text-xs transition-colors flex items-center"
+                  title={showSecret ? 'Hide secret' : 'Show secret'}
+                  variant="secondary"
+                >
+                  {showSecret ? <EyeOff className="w-4 h-4 mr-1" /> : <Eye className="w-4 h-4 mr-1" />} {showSecret ? 'Hide' : 'Show'}
+                </Button>
+              </div>
             </div>
           </div>
 
-          {/* Trigger and Active Status (Read-Only) */}
+          {/* Trigger and Active Status (Dropdown and Switch) */}
           <div className="flex space-x-4">
+            {/* Trigger Event Dropdown */}
             <div className="flex-1 space-y-2.5">
               <Label htmlFor="trigger" className={'text-xs'} icon={Zap}>Trigger Event</Label>
-              <Input id="trigger" value={formData.trigger_event} readOnly className="bg-neutral-100 text-xs text-neutral-600" />
+              <DropdownMenu>
+                <DropdownMenuTrigger 
+                  onClick={() => setIsDropdownOpen(p => !p)} 
+                  className="h-10 w-full justify-start px-3 bg-neutral-200 center font-medium rounded-md text-xs" 
+                  disabled={messageBox.status === 'loading'}
+                >
+                  <span className="truncate">{TRIGGER_EVENTS.find(e => e.value === formData.trigger_event)?.label}</span>
+                  {/* <ChevronDown className="ml-2 h-4 w-4 opacity-50" /> */}
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  {TRIGGER_EVENTS.map((event) => (
+                    <DropdownMenuItem
+                      key={event.value}
+                      className={cn('text-xs font-medium p-2 hover:bg-neutral-300 transition-300')}
+                      onSelect={() => {
+                        setFormData(prev => ({ ...prev, trigger_event: event.value }));
+                        setIsDropdownOpen(false);
+                      }}
+                    >
+                      {event.label}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
+
+            {/* Active Status Switch */}
             <div className="flex-1 space-y-2.5">
-              <Label htmlFor="active" icon={formData.is_active ? ToggleRight : ToggleLeft}>Status</Label>
-              <Input id="active" value={formData.is_active ? 'Active' : 'Disabled'} readOnly className={cn("text-xs font-medium", formData.is_active ? "text-green-600 bg-green-50" : "text-neutral-500 bg-neutral-100")} />
+              <Label htmlFor="active" className={'text-xs'} icon={Zap}>Status: {formData.is_active ? 'Active' : 'Disabled'}</Label>
+              <div className="flex items-center h-10 px-3 pt-1">
+                <Switch
+                  checked={formData.is_active}
+                  onCheckedChange={(checked) => setFormData(prev => ({ ...prev, is_active: checked }))}
+                  disabled={messageBox.status === 'loading'}
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -208,7 +272,7 @@ const WebhookFormDialog = ({ isOpen, onClose, initialData, onSave, status, messa
         {/* Dialog Footer */}
         <div className="flex justify-end p-6 border-t border-neutral-200 bg-neutral-50 rounded-b-xl">
           <div className="flex space-x-2">
-            <Button className={cn('transition-300 hover:bg-neutral-300 rounded-sm text-xs')} onClick={() => {onClose(); setMessageBox({message: '', status: 'idle'})}} disabled={messageBox.status === 'loading'}>
+            <Button className={cn('transition-300 hover:bg-neutral-300 rounded-sm text-xs')} onClick={handleClose} disabled={messageBox.status === 'loading'}>
               Cancel
             </Button>
             <Button  className={cn('bg-black transition-300 text-xs rounded-sm hover:bg-neutral-800')} onClick={handleSave} disabled={messageBox.status === 'loading'}>
@@ -221,7 +285,6 @@ const WebhookFormDialog = ({ isOpen, onClose, initialData, onSave, status, messa
     </div>
   );
 };
-
 
 // --- Main Webhook Manager Component ---
 export const WebhookManager = () => {
@@ -265,22 +328,14 @@ export const WebhookManager = () => {
 
       await saveWebhookCredentials(dataToSave);
 
-      setWebhooks(prevHooks => {
-        if (data.id) {
-          // Update existing hook
-          return prevHooks.map(hook =>
-            hook.id === data.id ? { ...dataToSave, id: data.id } : hook
-          );
-        } else {
-          // Add new hook
-          const newHook = {
-            ...dataToSave,
-            id: crypto.randomUUID(),
-            created_at: Date.now()
-          };
-          return [...prevHooks, newHook];
-        }
-      });
+      if (data.id) {
+        // Update existing hook (use current webhooks snapshot)
+        setWebhooks(webhooks.map(hook => hook.id === data.id ? { ...dataToSave, id: data.id } : hook));
+      } else {
+        // Add new hook
+        const newHook = { ...dataToSave, id: crypto.randomUUID(), created_at: Date.now() };
+        setWebhooks([...webhooks, newHook]);
+      }
 
       setMessage(data.id ? 'Webhook updated successfully!' : 'New webhook created successfully!');
       setStatus('success');
@@ -293,25 +348,29 @@ export const WebhookManager = () => {
 
     }catch (e) {
       toast.error(e.message || "Error saving webhook...");
-      setMessage("Error saving webhook...")
+      setMessage("Error saving webhook...");
+      setStatus('error');
     }finally {
 
     }
   };
 
-  const handleDelete = (id) => {
-    // Substitute for custom confirmation dialog
-    if (!window.confirm("Confirm deletion: This action cannot be undone.")) return;
-
+  const handleDelete = async (id) => {
     setStatus('loading');
     setMessage('Deleting webhook...');
+    try {
+      await deleteWebhookCredential(id);
 
-    setTimeout(() => {
-      setWebhooks(prevHooks => prevHooks.filter(hook => hook.id !== id));
+      setWebhooks(webhooks.filter(hook => hook.id !== id));
       setMessage('Webhook deleted.');
       setStatus('success');
-      setTimeout(() => setStatus('idle'), 1500);
-    }, 500); // Mock network delay
+      setStatus('idle')
+    } catch (e) {
+      toast.error(e.message || "Error deleting webhook...");
+      setMessage("Error deleting webhook...");
+      setStatus('error');
+      return;
+    }
   };
 
   const handleToggleActive = (hook) => {
@@ -319,9 +378,7 @@ export const WebhookManager = () => {
     const newStatus = !hook.is_active;
 
     setTimeout(() => {
-      setWebhooks(prevHooks => prevHooks.map(h =>
-        h.id === hook.id ? { ...h, is_active: newStatus } : h
-      ));
+      setWebhooks(webhooks.map(h => h.id === hook.id ? { ...h, is_active: newStatus } : h));
       setMessage(`Webhook ${newStatus ? 'activated' : 'deactivated'}.`);
       setStatus('success');
       setTimeout(() => setStatus('idle'), 1500);
@@ -361,6 +418,38 @@ export const WebhookManager = () => {
           <div className="flex flex-col items-center justify-center p-12 bg-white border border-neutral-200 rounded-lg shadow-sm">
             <Loader2 className="h-8 w-8 animate-spin text-black mb-4" />
             <p className="text-lg font-medium text-neutral-700">{message}</p>
+          </div>
+        ) : isWebhookCredentialsLoading ? (
+          <div className="flex flex-col space-y-4">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="flex flex-col border rounded-xl bg-white p-3 shadow-sm animate-pulse">
+                <div className="flex justify-between items-start mb-2">
+                  <div className="flex items-center space-x-3">
+                    <Skeleton className="h-8 w-8 rounded-full bg-neutral-200" />
+                    <div className="flex flex-col">
+                      <Skeleton className="h-5 w-48 rounded-md bg-neutral-200" />
+                      <Skeleton className="h-3 w-28 mt-1 rounded-md bg-neutral-200" />
+                    </div>
+                  </div>
+
+                  <div className="flex items-center space-x-2">
+                    <Skeleton className="h-8 w-8 rounded-md bg-neutral-200" />
+                    <Skeleton className="h-8 w-8 rounded-md bg-neutral-200" />
+                    <Skeleton className="h-8 w-8 rounded-md bg-neutral-200" />
+                  </div>
+                </div>
+
+                <div className="p-3 bg-neutral-50 rounded-lg border border-neutral-200">
+                  <Skeleton className="h-4 w-full rounded-sm bg-neutral-200" />
+                  <Skeleton className="h-3 w-2/3 mt-2 rounded-sm bg-neutral-200" />
+                </div>
+
+                <div className="flex justify-between items-center text-xs mt-2 text-neutral-500">
+                  <Skeleton className="h-3 w-28 rounded-sm bg-neutral-200" />
+                  <Skeleton className="h-3 w-36 rounded-sm bg-neutral-200" />
+                </div>
+              </div>
+            ))}
           </div>
         ) : (
           <ScrollArea className="flex flex-col space-y-4 max-h-[78dvh] rounded-lg pr-3">
@@ -441,8 +530,8 @@ export const WebhookManager = () => {
         onClose={() => setIsDialogOpen(false)}
         initialData={editingWebhook}
         onSave={handleSave}
-        status={'idle'}
-        message={''}
+        status={status}
+        message={message}
       />
     </div>
   );

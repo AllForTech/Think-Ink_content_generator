@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, ReactNode, useCallback, useContext, useEffect, useState } from 'react';
+import { createContext, ReactNode, useCallback, useContext, useEffect, useState, Dispatch, SetStateAction } from 'react';
 import { nanoid } from 'nanoid';
 import { toast } from 'sonner';
 import { ReadonlyURLSearchParams, useParams, useRouter, useSearchParams } from 'next/navigation';
@@ -125,7 +125,7 @@ interface GenerationContextType {
   triggerWebhookDispatch: () => Promise<void>;
 
   webhookCredentials: WebhookCredentials[];
-  setWebhookCredentials: (webhooks: WebhookCredentials[]) => void;
+  setWebhookCredentials: Dispatch<SetStateAction<WebhookCredentials[]>>;
   isWebhookCredentialsLoading: boolean,
   setIsWebhookCredentialsLoading: (prev?: boolean) => void;
 }

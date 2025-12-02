@@ -490,11 +490,40 @@ export async function saveWebhookCredentials(hookData: WebhookCredentials) {
       throw new Error(`Database save failed: ${error.message}`);
     }
 
-    console.log('Webhook successfully saved/updated:', data[0]);
+
     return data[0];
 
   } catch (error) {
     console.error('saveWebhookToSupabase execution failed:', error.message);
+    throw error;
+  }
+}
+
+export async function deleteWebhookCredential(credentialId: string) {
+  try {
+     const supabase = await createClient();
+
+    const { data: userData, error: authError } = await supabase.auth.getUser();
+
+    if (authError || !userData?.user) {
+      console.error('Authentication Error:', authError?.message || 'User not logged in.');
+      throw new Error('User authentication required to save webhooks.');
+    }
+
+    const userId = userData.user.id;
+
+    const { error } = await supabase
+      .from('api_integrations')
+      .delete()
+      .eq('user_id', userId)
+      .eq('id', credentialId);
+
+      if (error) {
+      console.error('Supabase Delete Error:', error.message);
+      throw new Error(`Database Delete failed: ${error.message}`);
+    }
+  }catch (error) {
+    console.error('deleteWebhookCredential execution failed:', error.message);
     throw error;
   }
 }
