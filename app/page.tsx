@@ -1,8 +1,8 @@
-import { Hero } from '@/components/Landing/Hero';
-import { Features } from '@/components/Landing/Features';
-import { Services } from '@/components/Landing/Services';
-import { About } from '@/components/Landing/About';
-import { Footer } from '@/components/Landing/Footer';
+import MonoHero from '@/components/Landing/MonoHero';
+import MonoFeatures from '@/components/Landing/MonoFeatures';
+import MonoTestimonials from '@/components/Landing/MonoTestimonials';
+import MonoCTA from '@/components/Landing/MonoCTA';
+import MonoFooter from '@/components/Landing/MonoFooter';
 import { Navbar } from '@/components/Landing/Navbar';
 import { cn } from '@/lib/utils';
 import { Metadata } from 'next';
@@ -55,19 +55,19 @@ export default function LandingPage() {
     <>
       <div
         className={cn(
-          'screen center !fixed inset-0 top-0 -z-4 bg-gradient-to-br from-white via-purple-400/28 to-white',
+          'screen center fixed! inset-0 top-0 -z-4 bg-linear-to-br from-white via-purple-400/28 to-white',
         )}
       />
       <div
         className="w-full overflow-hidden bg-transparent text-black backdrop-blur-2xl"
         id={'hide-scrollbar'}
       >
-        <Navbar />
-        <Hero />
-        <Features />
-        <Services />
-        <About />
-        <Footer />
+        {/* <Navbar /> */}
+        <MonoHero />
+        <MonoFeatures />
+        <MonoTestimonials />
+        <MonoCTA />
+        <MonoFooter />
       </div>
     </>
   );

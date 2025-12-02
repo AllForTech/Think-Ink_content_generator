@@ -440,6 +440,7 @@ export function ContextProvider({ children }: { children: ReactNode }) {
     const refinedPrompt = await refinePrompt(prompt);
     setPrompt(refinedPrompt);
     setIsRefineLoading(false);
+    return refinedPrompt;
   }, [prompt, setPrompt]);
 
   // --- Webhook Trigger Function ---
@@ -520,6 +521,7 @@ export function ContextProvider({ children }: { children: ReactNode }) {
     prompt,
     setPrompt,
     isRefineLoading,
+    setIsRefineLoading,
     onRefinePrompt,
     isDialogOpen,
     setIsDialogOpen,
