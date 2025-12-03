@@ -3,7 +3,7 @@
 import React, { memo } from 'react';
 import { motion } from 'framer-motion';
 
-const Container = ({ children, className = '' }) => (
+export const Container = ({ children, className = '' }) => (
     <div className={`container mx-auto px-6 md:px-8 lg:px-12 ${className}`}>
         {children}
     </div>

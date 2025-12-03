@@ -16,8 +16,10 @@ function Footer() {
           </div>
 
           <div className="flex items-center gap-6 text-xs text-neutral-600">
-            <a href="#features" className="hover:text-black text-black!">Features</a>
-            {/* <a href="#testimonials" className="hover:text-black text-black!">Testimonials</a> */}
+           <a href="#secondary-features" className="text-xs text-black! font-semibold hover:text-black! no-underline! transition">Model Hub</a>
+           <a href="#features" className="text-xs text-black! font-semibold hover:text-black! no-underline! transition">Features</a>
+           <a href="#automation" className="text-xs text-black! font-semibold hover:text-black! no-underline! transition">Pipeline</a>
+           <a href="#" className="text-xs text-black! font-semibold hover:text-black! no-underline! transition">Privacy</a>
           </div>
 
           <div className="text-xs text-neutral-500">© {new Date().getFullYear()} Think-Ink — All rights reserved</div>

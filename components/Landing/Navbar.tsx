@@ -16,6 +16,7 @@ const Navbar = () => {
     const navItems = [
         { href: "#features", label: "Features" },
         { href: "#automation", label: "Automation" },
+        { href: "#secondary-features", label: "Model Hub" },
         { href: "/docs", label: "Docs" },
     ];
 

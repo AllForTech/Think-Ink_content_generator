@@ -6,6 +6,7 @@ import Footer from '@/components/Landing/Footer';
 import { cn } from '@/lib/utils';
 import { Metadata } from 'next';
 import Navbar from '@/components/Landing/Navbar';
+import FeaturesSecondary from '@/components/Landing/FeaturesSecondary';
 
 export const metadata: Metadata = {
   // Title that appears in the browser tab
@@ -65,6 +66,7 @@ export default function LandingPage() {
         <Navbar />
         <Hero />
         <Features />
+         <FeaturesSecondary/>
         <AutomationIntegrationSection />
         <CTA />
         <Footer />
