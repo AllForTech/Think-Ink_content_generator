@@ -40,7 +40,7 @@ const mockDecrypt = (data) => data.startsWith('ENC:') ? atob(data.slice(4)) : da
 const defaultWebhook = {
   url: '',
   trigger_event: 'content.complete',
-  secret_key: crypto.randomUUID(), // Auto-generate a strong initial secret
+  secret_key: "", // Auto-generate a strong initial secret
   is_active: true,
 };
 
@@ -508,12 +508,12 @@ export const WebhookManager = () => {
                   {/* Details */}
                   <div className="p-3 bg-neutral-50 rounded-lg border border-neutral-200">
                     <p className="text-xs font-medium text-neutral-600 mb-1">Destination URL</p>
-                    <code className="text-sm font-mono text-neutral-900 break-all">
+                    <code className="text-xs font-mono text-neutral-900 break-all">
                       {hook.url}
                     </code>
                   </div>
 
-                  <div className="flex justify-between items-center text-xs mt-2 text-neutral-500">
+                  <div className="flex justify-between items-center text-xs! mt-2 text-neutral-500">
                     <span>Trigger: <span className="font-medium text-black">{hook.trigger_event}</span></span>
                     <span>Secured by Secret Key</span>
                   </div>

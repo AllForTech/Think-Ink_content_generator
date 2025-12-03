@@ -15,7 +15,7 @@ import { ChatHistoryRenderer } from '@/components/Layout/Dashboard/Generate/Chat
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { toast } from 'sonner';
 import { Button } from '@mdxeditor/editor';
-import { Upload, X } from 'lucide-react';
+import { TrashIcon, Upload, X } from 'lucide-react';
 import { motion } from 'framer-motion';
 import MobileSheetWrapper from '@/components/Layout/Dashboard/Generate/MobileSheetWrapper';
 import { SystemPromptSelector } from '@/components/Layout/Dashboard/Generate/AISystemConfig';
@@ -136,7 +136,7 @@ export const Source = () => {
   );
 };
 
-const Images = () => {
+export const Images = ({ width = 400}) => {
   const { generatedContent, setGeneratedContent, localImages, setLocalImages } = useContent();
 
   // MAINTAINED LOGIC: Extract images from Markdown
@@ -202,7 +202,7 @@ const Images = () => {
   return (
     <ScrollArea
       className={cn(
-        'center container-full h-full max-h-[82dvh] !w-[400px] flex-col gap-2.5 bg-white p-4',
+        `center container-full h-full max-h-[82dvh] w-[${width}px]! flex-col gap-2.5 bg-white p-4`,
       )}
     >
       <h3 className="mb-3 w-full border-b border-black/10 pb-2 text-lg font-bold text-black">
@@ -239,11 +239,11 @@ const Images = () => {
                 </div>
 
                 {/* Action Buttons Overlay */}
-                <div className="absolute inset-0 flex flex-col items-center justify-end bg-black/30 p-2 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                <div className="absolute h-fit w-full bottom-0 flex flex-row gap-1 items-center justify-end bg-black/30 p-2 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
                   {/* Insert Button (Primary Action) */}
                   <div
                     onClick={() => handleInsertImage(url)}
-                    className="mb-1 w-full bg-indigo-600 text-xs font-semibold text-white hover:bg-indigo-700"
+                    className="mb-1 w-full bg-indigo-600 cursor-pointer text-xs rounded-md p-2.5 transition-300 font-semibold text-white hover:bg-indigo-700"
                   >
                     Insert into Editor
                   </div>
@@ -252,9 +252,9 @@ const Images = () => {
                   {isLocalImage(url) && (
                     <div
                       onClick={() => handleRemoveLocalImage(url)}
-                      className="w-full border border-black/20 bg-white text-xs font-semibold text-black hover:bg-black hover:text-white"
+                      className="container-fit bg-white border border-black/20 rounded-md p-2.5 transition-300 text-xs font-semibold text-black"
                     >
-                      <X className="mr-1 h-3 w-3" /> Remove
+                      <TrashIcon className="h-3 font-semibold! text-red-500 w-3" size={16} />
                     </div>
                   )}
                 </div>

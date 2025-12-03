@@ -18,10 +18,6 @@ export default function EditorLoader({ className }: CodeEditorLoaderProps) {
         className, // Allows setting height/width from the dynamic import
       )}
     >
-      <div className="mb-2 text-xs text-stone-800">
-        <span className="text-blue-400">Loading</span>: Initializing Markdown Interface...
-      </div>
-
       {/* Simulated Code/Content Lines */}
       {Array.from({ length: LINE_COUNT }).map((_, index) => {
         // Line width varies to mimic code structure

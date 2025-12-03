@@ -12,11 +12,12 @@ import { Source } from '../RightSidebarPanel';
 import EditorLoader from '@/components/Layout/Dashboard/Generate/Editor/EditorLoader';
 import { FileText, PenLine, Link as LinkIcon, Code } from 'lucide-react';
 import { PromptSelector } from '@/components/Layout/Dashboard/Generate/PromptSelector';
+import { ContentLoadingSkeleton } from '@/components/ui/ContentLoadingSkeleton';
 
 const Editor = dynamic(() => import('../Editor/Editor'), {
   // Make sure we turn SSR off
   ssr: false,
-  loading: () => <EditorLoader className={'container-full !h-[75dvh]'} />,
+  loading: () => <ContentLoadingSkeleton isGenerating={false} />,
 });
 
 export default function Renderer() {
