@@ -1,14 +1,13 @@
 'use client'
 
-import React from 'react';
+import React, { memo } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import SCREENSHOT_URL from '@/assets/hero_image.png'; 
 import Image from 'next/image';
-import { Navbar } from './Navbar';
+import Navbar from './Navbar';
 
-
-export default function MonoHero() {
+function Hero() {
   return (
     <header className="relative isolate overflow-hidden bg-white py-10 lg:py-20">
       {/* 1. Subtle Background Texture (Grain/Vignette) */}
@@ -83,7 +82,7 @@ export default function MonoHero() {
 
           {/* Right side visual — Platform Screensho */}
           <div 
-          className="md:col-span-5 flex items-center justify-center md:justify-end mt-12 md:mt-0">
+          className="md:col-span-5 flex items-center justify-center md:justify-end mt-12 md:mr-12 md:mt-0">
             <motion.div
               initial={{ opacity: 0, scale: 0.9, x: 300 }}
               animate={{ opacity: 1, scale: 1, x: 0 }}
@@ -130,3 +129,6 @@ export default function MonoHero() {
     </header>
   );
 }
+
+
+export default memo(Hero);

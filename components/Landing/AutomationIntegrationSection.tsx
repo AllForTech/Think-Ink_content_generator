@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react';
+import React, { memo } from 'react';
 import { motion } from 'framer-motion';
 
 const Container = ({ children, className = '' }) => (
@@ -50,9 +50,12 @@ const AnimatedPipelineCore = () => {
                 {/* The main pipeline path (dashed and subtle) */}
                 <motion.path
                     d={pathD}
-                    stroke="#E5E7EB" // Light gray for the path
+                    stroke="#787878" // Light gray for the path
                     strokeWidth="3"
                     strokeDasharray="10 10"
+                    initial={{y: 0 }}
+                    animate={{ y: 50 }}
+                    transition={{ duration: .5, repeat: 10, repeatType: 'loop'}}
                     strokeLinecap="round"
                 />
 
@@ -118,7 +121,7 @@ const automationSteps = [
 ];
 
 // Main section component using the new Animated Pipeline
-export default function AutomationIntegrationSection() {
+function AutomationIntegrationSection() {
     return (
       <section id="automation" className="bg-white py-24 md:py-32 overflow-hidden relative">
             
@@ -168,7 +171,7 @@ export default function AutomationIntegrationSection() {
                                 whileHover={{ scale: 1.02 }}
                                 
                                 className={`
-                                    p-6 rounded-lg bg-white/90 backdrop-blur-sm border shadow-neutral-300 border-neutral-100 shadow-xl 
+                                    p-6 rounded-lg bg-white/90 backdrop-blur-sm border shadow-neutral-400 border-neutral-100 shadow-xl 
                                     
                                     mx-auto max-w-lg w-full text-left
                    
@@ -204,3 +207,5 @@ export default function AutomationIntegrationSection() {
         </section>
     );
 }
+
+export default memo(AutomationIntegrationSection);

@@ -1,8 +1,8 @@
 'use client'
 
-import React from 'react';
+import React, { memo } from 'react';
 
-export default function MonoFooter() {
+function Footer() {
   return (
     <footer className="bg-white border-t border-neutral-100 py-10">
       <div className="container mx-auto px-6 md:px-8 lg:px-12 text-sm text-neutral-700">
@@ -26,3 +26,5 @@ export default function MonoFooter() {
     </footer>
   );
 }
+
+export default memo(Footer);

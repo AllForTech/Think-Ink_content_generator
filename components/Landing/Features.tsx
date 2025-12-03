@@ -1,31 +1,12 @@
 'use client'
 
-import React, { useEffect } from 'react';
+import React, { memo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {Button} from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
-export default function MonoFeatures() {
-  const [selectedFeature, setSelectedFeature] = React.useState(null);
 
-  // useEffect(() => {
-
-  //   let timer = null;
-  //   let len = 0;
-
-  //   while (features.length !== len) {
-    
-  //     timer = setTimeout(() => {
-
-  //      setSelectedFeature(features[len]);
-  //     len++
-  //     if(len === features.length) len = 0
-  //     }, 2000)
-  //   }
-
-  // }, [])
-
-  const features = [
+const features = [
     {
       id: 'f1',
       title: 'Two-Stage Refinement Pipeline',
@@ -65,6 +46,11 @@ export default function MonoFeatures() {
     }
   ];
 
+function Features() {
+  const [selectedFeature, setSelectedFeature] = React.useState(features[0]);
+
+
+
   const handleCardClick = (feature) => {
     setSelectedFeature(selectedFeature?.id === feature.id ? null : feature);
   };
@@ -95,7 +81,7 @@ export default function MonoFeatures() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.5 }}
             transition={{ duration: 0.6 }} 
-            className="text-5xl md:text-6xl font-extrabold text-black tracking-tighter"
+            className="text-5xl md:text-6xl center font-extrabold text-black tracking-tighter"
           >
             Power Engineered for Content Mastery.
           </motion.h2>
@@ -104,7 +90,7 @@ export default function MonoFeatures() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.5 }}
             transition={{ duration: 0.6, delay: 0.1 }} 
-            className="mt-4 max-w-xl text-xl text-neutral-700"
+            className="mt-4 max-w-xl center text-xl text-neutral-700"
           >
             Everything you need to produce polished content quickly reliability without the noise.
           </motion.p>
@@ -161,21 +147,33 @@ export default function MonoFeatures() {
               exit="exit"
               className="mt-16 overflow-hidden origin-top"
             >
-              <div className="bg-white p-8 md:p-12 rounded-2xl shadow-2xl shadow-black/20 border-2 border-black/20 relative">
-                {/* Reveal Icon and Title */}
+              <div className="bg-black p-8 md:p-12 rounded-2xl gap-3 shadow-2xl shadow-black/20 border-2 border-black/20 relative">
+                
                 <div className="flex items-center gap-4 border-b border-neutral-100 pb-4 mb-6">
                   <div className="p-4 rounded-xl bg-black text-white flex items-center justify-center shadow-lg">
                     {selectedFeature.icon}
                   </div>
-                  <h3 className="text-3xl font-extrabold text-black">
+                  <h3 className="text-3xl font-extrabold text-white">
                     {selectedFeature.title}
                   </h3>
                 </div>
 
-                {/* Full Description Text */}
-                <p className="text-lg text-neutral-800 leading-relaxed">
+                <motion.p 
+                initial={{ opacity: 0}}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 1.5, ease: 'linear'}}
+                className="text-lg text-neutral-300 leading-relaxed">
                   {selectedFeature.fullDescription}
-                </p>
+                </motion.p>
+
+                <motion.div
+                  initial={{ opacity: 0, x: 500}}
+                  animate={{ opacity: 1, x: 0}}
+                  transition={{ duration: 2, ease: 'backInOut' }}
+                  className={cn('w-full min-h-100 my-10! animate-pulse rounded-lg bg-neutral-700')}
+                >
+
+                </motion.div>
 
                 {/* Closing Button */}
                 <div className="mt-8 text-right">
@@ -194,3 +192,6 @@ export default function MonoFeatures() {
     </section>
   );
 }
+
+
+export default memo(Features)

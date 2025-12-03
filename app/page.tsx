@@ -1,9 +1,8 @@
-import MonoHero from '@/components/Landing/Hero';
-import MonoFeatures from '@/components/Landing/Features';
+import Hero from '@/components/Landing/Hero';
+import Features from '@/components/Landing/Features';
 import AutomationIntegrationSection from '@/components/Landing/AutomationIntegrationSection';
-import MonoCTA from '@/components/Landing/CTA';
-import MonoFooter from '@/components/Landing/Footer';
-import { Navbar } from '@/components/Landing/Navbar';
+import CTA from '@/components/Landing/CTA';
+import Footer from '@/components/Landing/Footer';
 import { cn } from '@/lib/utils';
 import { Metadata } from 'next';
 
@@ -63,11 +62,11 @@ export default function LandingPage() {
         id={'hide-scrollbar'}
       >
         {/* <Navbar /> */}
-        <MonoHero />
-        <MonoFeatures />
+        <Hero />
+        <Features />
         <AutomationIntegrationSection />
-        <MonoCTA />
-        <MonoFooter />
+        <CTA />
+        <Footer />
       </div>
     </>
   );

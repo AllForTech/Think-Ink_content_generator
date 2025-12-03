@@ -4,9 +4,9 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Menu, X, BookOpen } from 'lucide-react';
-import { useState } from 'react';
+import { memo, useState } from 'react';
 
-export const Navbar = () => {
+const Navbar = () => {
  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     const toggleMenu = () => {
@@ -100,3 +100,5 @@ export const Navbar = () => {
         </motion.div>
     );
 };
+
+export default memo(Navbar);
