@@ -2,6 +2,10 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button'; // Assuming you use a UI library
 import { Input } from '@/components/ui/input';
 import { SaveImageParameters } from '@mdxeditor/editor'; // The type for submitting data
+import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
+import { cn } from '@/lib/utils';
+import { Images } from '../RightSidebarPanel';
+import { ImagePlus } from 'lucide-react';
 
 // Define the shape of the props the MDX editor will pass to your component
 interface CustomImageDialogProps {
@@ -13,7 +17,7 @@ interface CustomImageDialogProps {
   // state: EditingImageDialogState | NewImageDialogState;
 }
 
-const CustomImageDialog: React.FC<CustomImageDialogProps> = ({ onImageUpload, onClose }) => {
+const CustomImageDialog = () => {
   const [url, setUrl] = useState('');
   const [altText, setAltText] = useState('');
   const [file, setFile] = useState<File | null>(null);
@@ -25,12 +29,7 @@ const CustomImageDialog: React.FC<CustomImageDialogProps> = ({ onImageUpload, on
 
     // CASE 1: Image URL provided
     if (url.trim()) {
-      onImageUpload({
-        src: url.trim(),
-        altText: altText.trim(),
-        // width and height are optional, but good practice if known
-      });
-      onClose();
+    
       return;
     }
 
@@ -42,13 +41,7 @@ const CustomImageDialog: React.FC<CustomImageDialogProps> = ({ onImageUpload, on
         // You would call your private API route here (e.g., /api/upload-image)
         const uploadedUrl = await uploadImageToServer(file);
 
-        // --- STEP B: Submit the final URL to the MDX Editor ---
-        onImageUpload({
-          src: uploadedUrl,
-          altText: altText.trim() || file.name,
-          // You could fetch dimensions from the server response here if needed
-        });
-        onClose();
+    
       } catch (error) {
         console.error('Image upload failed:', error);
         alert('Failed to upload image. Check console for details.');
@@ -80,59 +73,18 @@ const CustomImageDialog: React.FC<CustomImageDialogProps> = ({ onImageUpload, on
   };
 
   return (
-    <div className="mx-auto max-w-sm rounded border border-black bg-white p-4 shadow-lg">
-      <h2 className="mb-4 text-lg font-bold">Insert Image</h2>
-
-      {/* File Upload Section */}
-      <div className="mb-4">
-        <label className="mb-1 block text-sm font-medium">Upload File</label>
-        <Input
-          type="file"
-          accept="image/*"
-          onChange={(e) => {
-            setFile(e.target.files?.[0] || null);
-            // Clear URL when file is selected
-            setUrl('');
-          }}
-        />
-        <p className="mt-1 text-xs text-gray-500">or enter a URL below</p>
-      </div>
-
-      {/* URL Input Section */}
-      <div className="mb-4">
-        <label className="mb-1 block text-sm font-medium">Image URL</label>
-        <Input
-          type="url"
-          placeholder="https://example.com/image.png"
-          value={url}
-          onChange={(e) => {
-            setUrl(e.target.value);
-            // Clear file when URL is manually entered
-            setFile(null);
-          }}
-        />
-      </div>
-
-      {/* Alt Text Input */}
-      <div className="mb-6">
-        <label className="mb-1 block text-sm font-medium">Alt Text</label>
-        <Input
-          placeholder="Description for accessibility"
-          value={altText}
-          onChange={(e) => setAltText(e.target.value)}
-        />
-      </div>
-
-      {/* Actions */}
-      <div className="flex justify-end space-x-2">
-        <Button variant="outline" onClick={onClose} disabled={loading}>
-          Cancel
+   <>
+     <Dialog>
+       <DialogTrigger asChild>
+        <Button className="bg-transparent p-2! hover:bg-neutral-200">
+         <ImagePlus className='text-black' size={15}/>
         </Button>
-        <Button onClick={handleSubmit} disabled={loading || (!url.trim() && !file)}>
-          {loading ? 'Uploading...' : 'Insert Image'}
-        </Button>
-      </div>
-    </div>
+      </DialogTrigger>
+      <DialogContent className='w-[500px] h-[500px] bg-white rounded-lg center'>
+        <Images width={600}/>
+      </DialogContent>
+     </Dialog>
+   </>
   );
 };
 

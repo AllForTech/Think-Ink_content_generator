@@ -61,7 +61,7 @@ export default function Editor() {
                 <BoldItalicUnderlineToggles />
                 <ListsToggle options={['number', 'bullet', 'check']} />
                 <CodeToggle />
-                <InsertImage />
+                <CustomImageDialog/>
                 <InsertTable />
                 <InsertSandpack />
                 {/* You can add more buttons here */}
@@ -92,7 +92,7 @@ export default function Editor() {
           tablePlugin(),
         ]}
         contentEditableClassName={cn(
-          'container-full !h-full p-2 overflow-y-auto prose markdown markdown-content-area',
+          'container-full !h-full p-2 pt-10! overflow-y-auto prose markdown markdown-content-area',
         )}
         className={cn('container-full overflow-hidden rounded-md bg-white')}
       />

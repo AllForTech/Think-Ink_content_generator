@@ -4,11 +4,12 @@ import { cn } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Loader } from 'lucide-react';
 
-export const ContentLoadingSkeleton = () => {
+export const ContentLoadingSkeleton = ({isGenerating = true}) => {
   return (
     <div className={cn('container-full flex flex-col gap-5 p-4 md:p-6')}>
       {/* 1. Header and Loader */}
-      <div
+      {isGenerating ? (
+         <div
         className={cn('flex h-fit w-full items-center gap-3 border-b border-neutral-200/50 pb-3')}
       >
         <Loader className={cn('animate-spin text-black')} size={18} />
@@ -16,6 +17,16 @@ export const ContentLoadingSkeleton = () => {
           Generating Content. Please wait...
         </p>
       </div>
+      ) : (
+         <div
+        className={cn('flex h-fit w-full items-center gap-3 border-b border-neutral-200/50 pb-3')}
+      >
+        <Loader className={cn('animate-spin text-black')} size={18} />
+        <p className={cn('text-foreground/80 text-sm font-medium tracking-wide')}>
+          Loading editor...
+        </p>
+      </div>
+      )}
 
       {/* 2. Main Title/Heading Skeleton */}
       <div className="w-full">
@@ -47,6 +58,11 @@ export const ContentLoadingSkeleton = () => {
         <div className="pt-6">
           <Skeleton className={'h-10 w-1/2 rounded-lg bg-neutral-500/30 dark:bg-neutral-800/50'} />
         </div>
+        {!isGenerating && (
+          <div className="pt-6">
+          <Skeleton className={'h-10 w-1/2 rounded-lg bg-neutral-500/30 dark:bg-neutral-800/50'} />
+        </div>
+        )}
       </div>
     </div>
   );

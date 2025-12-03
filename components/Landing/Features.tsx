@@ -1,12 +1,29 @@
 'use client'
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {Button} from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 export default function MonoFeatures() {
   const [selectedFeature, setSelectedFeature] = React.useState(null);
+
+  useEffect(() => {
+
+    let timer = null;
+    let len = 0;
+
+    while (features.length !== len) {
+    
+      timer = setTimeout(() => {
+
+       setSelectedFeature(features[len]);
+      len++
+      if(len === features.length) len = 0
+      }, 2000)
+    }
+
+  }, [])
 
   const features = [
     {
