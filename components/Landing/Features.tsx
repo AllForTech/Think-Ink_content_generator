@@ -3,6 +3,10 @@
 import React, { memo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {Button} from '@/components/ui/button';
+import refinePromptImage from '@/assets/refine-prompt.png'
+import generatedContentImage from '@/assets/generated-content.png';
+import webhookImage from '@/assets/webhook-dialog.png';
+import Image from 'next/image'
 import { cn } from '@/lib/utils';
 
 
@@ -19,6 +23,11 @@ const features = [
           <path d="M9 13l6 0"></path>
         </svg>
       ),
+      contents: [
+        {
+          image: refinePromptImage,
+        }
+      ],
     },
     {
       id: 'f2',
@@ -31,6 +40,11 @@ const features = [
           <path d="m9 12 2 2 4-4"></path>
         </svg>
       ),
+       contents: [
+        {
+          image: generatedContentImage,
+        }
+      ],
     },
     {
       id: 'f3',
@@ -43,6 +57,11 @@ const features = [
           <polyline points="16 3 12 7 8 3"></polyline>
         </svg>
       ),
+       contents: [
+        {
+          image: webhookImage,
+        }
+      ],
     }
   ];
 
@@ -97,7 +116,7 @@ function Features() {
         </div>
 
         {/* Feature Cards Grid */}
-        <div className="mt-20 grid grid-cols-1 sm:grid-cols-3 gap-8">
+        <div id='hide-scrollbar' className="mt-20 w-full flex justify-start p-5 overflow-y-auto md:overflow-y-hidden md:grid grid-cols-1 sm:grid-cols-3 gap-8">
           {features.map((f, idx) => (
             <motion.div 
               key={f.id} 
@@ -108,8 +127,8 @@ function Features() {
               onClick={() => handleCardClick(f)}
               role="button"
               aria-expanded={selectedFeature?.id === f.id} 
-              className={`relative bg-white border group rounded-2xl p-8 cursor-pointer hover:bg-black hover:text-white! transition-all duration-300 transform 
-                ${selectedFeature?.id === f.id ? 'border-black bg-black! shadow-2xl shadow-black/10' : ' hover:border-black/50 shadow-lg hover:shadow-xl hover:shadow-neutral-200'}
+              className={`relative bg-white border group w-full rounded-2xl p-8 cursor-pointer hover:bg-black hover:text-white! transition-all duration-300 transform 
+                ${selectedFeature?.id === f.id ? 'border-black bg-black! shadow-2xl shadow-black/20' : ' hover:border-black/50 shadow-neutral-400 shadow-lg hover:shadow-xl hover:shadow-neutral-200'}
               `}
             >
               <div className="flex items-center gap-4">
@@ -162,21 +181,34 @@ function Features() {
                 initial={{ opacity: 0}}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 1.5, ease: 'linear'}}
-                className="text-lg text-neutral-300 leading-relaxed">
+                className="text-sm md:text-lg text-neutral-300 leading-relaxed">
                   {selectedFeature.fullDescription}
                 </motion.p>
 
                 <motion.div
                   initial={{ opacity: 0, x: 500}}
                   animate={{ opacity: 1, x: 0}}
-                  transition={{ duration: 2, ease: 'backInOut' }}
-                  className={cn('w-full min-h-100 my-10! animate-pulse rounded-lg bg-neutral-700')}
+                  transition={{ duration: 1, ease: 'backInOut' }}
+                  className={cn('w-full min-h-auto my-10! overflow-hidden rounded-lg bg-neutral-700')}
                 >
-
+                   <Image
+                  src={selectedFeature.contents[0].image}
+                  alt="Secondary layered detail"
+                  width={1300}
+                  height={650}
+                  // Using lower opacity to simulate depth and avoid visual clutter
+                  className="w-full h-auto object-cover z-10 opacity-70" 
+                />
                 </motion.div>
 
                 {/* Closing Button */}
-                <div className="mt-8 text-right">
+                <div className="mt-8 w-full between">
+                   <Button 
+                    className="bg-neutral-100 text-neutral-800 px-4 py-2 text-sm font-semibold rounded-lg hover:bg-neutral-200 transition"
+                  >
+                    View Documentation
+                  </Button>
+
                   <Button 
                     onClick={() => setSelectedFeature(null)} 
                     className="bg-neutral-100 text-neutral-800 px-4 py-2 text-sm font-semibold rounded-lg hover:bg-neutral-200 transition"

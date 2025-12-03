@@ -5,6 +5,7 @@ import CTA from '@/components/Landing/CTA';
 import Footer from '@/components/Landing/Footer';
 import { cn } from '@/lib/utils';
 import { Metadata } from 'next';
+import Navbar from '@/components/Landing/Navbar';
 
 export const metadata: Metadata = {
   // Title that appears in the browser tab
@@ -61,7 +62,7 @@ export default function LandingPage() {
         className="w-full overflow-hidden bg-transparent text-black backdrop-blur-2xl"
         id={'hide-scrollbar'}
       >
-        {/* <Navbar /> */}
+        <Navbar />
         <Hero />
         <Features />
         <AutomationIntegrationSection />

@@ -16,6 +16,7 @@ const Navbar = () => {
     const navItems = [
         { href: "#features", label: "Features" },
         { href: "#automation", label: "Automation" },
+        { href: "/docs", label: "Docs" },
     ];
 
     return (
@@ -27,7 +28,7 @@ const Navbar = () => {
         >
             <nav className="container mx-auto flex items-center justify-between px-6 md:px-8 lg:px-12">
                 {/* Logo / Brand Name */}
-                <Link href="/" className="flex items-center gap-2 text-black! text-lg font-extrabold tracking-tight z-50">
+                <Link href="/" className="flex items-center no-underline! gap-2 text-black! text-lg font-extrabold tracking-tight z-50">
                     <span className="inline-block rounded-sm px-2 py-1 border border-black/10 text-base font-medium">TI</span>
                     Think-Ink
                 </Link>
@@ -35,7 +36,7 @@ const Navbar = () => {
                 {/* Desktop Navigation */}
                 <div className="hidden md:flex items-center gap-8">
                     {navItems.map(item => (
-                        <Link key={item.href} href={item.href} className="text-sm text-black! font-medium hover:text-black transition">
+                        <Link key={item.href} href={item.href} className="text-sm no-underline! text-black! font-medium hover:text-black transition">
                             {item.label}
                         </Link>
                     ))}

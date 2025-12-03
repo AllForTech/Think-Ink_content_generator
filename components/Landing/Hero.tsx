@@ -4,8 +4,8 @@ import React, { memo } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import SCREENSHOT_URL from '@/assets/hero_image.png'; 
+import SCREENSHOT_URL2 from '@/assets/webhook-dialog.png';
 import Image from 'next/image';
-import Navbar from './Navbar';
 
 function Hero() {
   return (
@@ -17,8 +17,6 @@ function Hero() {
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_10%_20%,rgba(0,0,0,0.03),transparent_20%),radial-gradient(circle_at_90%_80%,rgba(0,0,0,0.02),transparent_20%)]" />
       </div>
 
-     
-     <Navbar/>
 
       {/* Hero Content Grid */}
       <div className="container mx-auto px-6 md:px-8 lg:px-12 mt-16">
@@ -63,7 +61,7 @@ function Hero() {
 
             <div className="mt-12 flex items-center gap-6 justify-center md:justify-start text-sm text-neutral-600">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full border border-neutral-200 bg-neutral-200 flex items-center justify-center text-xs font-semibold text-black">1</div>
+                <div className="w-10 h-10 rounded-full border border-neutral-200 bg-neutral-300 flex items-center justify-center text-xs font-semibold text-black">1</div>
                 <div>
                   <div className="text-black font-semibold">Trusted by creators</div>
                   <div className="text-xs text-neutral-500">Used daily by modern teams</div>
@@ -71,7 +69,7 @@ function Hero() {
               </div>
 
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full border border-neutral-200 bg-neutral-200 flex items-center justify-center text-xs font-semibold text-black">99%</div>
+                <div className="w-10 h-10 rounded-full border border-neutral-200 bg-neutral-300 flex items-center justify-center text-xs font-semibold text-black">99%</div>
                 <div>
                   <div className="text-black font-semibold">Uptime & performance</div>
                   <div className="text-xs text-neutral-500">Reliably available</div>
@@ -111,7 +109,7 @@ function Hero() {
                 className="absolute top-4 left-4 md:top-20 md:left-10 z-0 w-full h-auto overflow-hidden rounded-lg border border-black/5"
               >
                 <Image
-                  src={SCREENSHOT_URL}
+                  src={SCREENSHOT_URL2}
                   alt="Secondary layered detail"
                   width={1300}
                   height={650}
