@@ -8,22 +8,22 @@ import { cn } from '@/lib/utils';
 export default function MonoFeatures() {
   const [selectedFeature, setSelectedFeature] = React.useState(null);
 
-  useEffect(() => {
+  // useEffect(() => {
 
-    let timer = null;
-    let len = 0;
+  //   let timer = null;
+  //   let len = 0;
 
-    while (features.length !== len) {
+  //   while (features.length !== len) {
     
-      timer = setTimeout(() => {
+  //     timer = setTimeout(() => {
 
-       setSelectedFeature(features[len]);
-      len++
-      if(len === features.length) len = 0
-      }, 2000)
-    }
+  //      setSelectedFeature(features[len]);
+  //     len++
+  //     if(len === features.length) len = 0
+  //     }, 2000)
+  //   }
 
-  }, [])
+  // }, [])
 
   const features = [
     {
