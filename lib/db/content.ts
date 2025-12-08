@@ -559,16 +559,21 @@ export async function getWebhookCredentials() {
 }
 
 
-export async function fetchContentsFromDB(limit = 10, versions = 3) {
+export async function fetchContentsFromDB(limit = 10, versions = 3, userId?: string, contentId?: string) {
 
     try{
-      let relationConfig = {
+      const relationConfig = {
         limit: versions, 
         orderBy: [desc(userContents.createdAt)],
       }
 
+      const userIdClause = userId ? eq(contents.authorId, userId) : undefined;
+      const contentIdClause = userId ? eq(contents.contentId, contentId) : undefined;
+
+
       const results = await db.query.contents.findMany({
       limit: limit,
+      where: and(userIdClause, contentIdClause),
 
       with: {
         versions: relationConfig,

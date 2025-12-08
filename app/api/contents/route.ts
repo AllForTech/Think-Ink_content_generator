@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { fetchContentsFromDB } from '@/lib/db/content';
 
-// 1. Define a secure API key (In production, store this in .env.local)
-// Example .env: EXTERNAL_PLATFORM_API_KEY="sk_prod_12345..."
-const API_KEY = process.env.EXTERNAL_PLATFORM_API_KEY;
+export const runtime = 'nodejs';
+
+
+const API_KEY = process.env.EXTERNAL_API_KEY;
 
 export async function GET(request: NextRequest) {
   try {
@@ -18,9 +19,16 @@ export async function GET(request: NextRequest) {
 
 
     const searchParams = request.nextUrl.searchParams;
-    const limit = parseInt(searchParams.get('limit') || '10');
+    const limit = parseInt(searchParams.get('limit'));
+    const versions = parseInt(searchParams.get('versions'));
+    const authorID = searchParams.get('author_id');
+
+    // Ensure limit is a positive number
+    const safeLimit = Math.max(1, limit);
+    // Ensure versions is a non-negative number
+    const safeVersions = Math.max(0, versions);
     
-    const contentData = await fetchContentsFromDB(limit); 
+    const contentData = await fetchContentsFromDB(safeLimit, safeVersions, authorID); 
 
     return NextResponse.json({
       success: true,
