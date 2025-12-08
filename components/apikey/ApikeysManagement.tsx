@@ -5,6 +5,7 @@ import React, { useState, useEffect, useCallback, useMemo, memo } from 'react';
 import { Button } from '../ui/button';
 import { ScrollArea } from '../ui/scroll-area';
 import { cn } from '@/lib/utils';
+import { Label } from '../ui/label';
 
 /**
  * Utility to copy text to clipboard
@@ -110,14 +111,17 @@ const NewKeyDialog = ({ isOpen, onClose, userId, onKeyGenerated }) => {
                         </Button>
                     </div>
                 ) : (
-                    <form onSubmit={handleGenerate} className="space-y-4">
+                    <form onSubmit={handleGenerate} className="space-y-4 gap-1">
+                        <Label className="text-xs font-semibold">
+                            Key Name
+                        </Label>
                         <input
                             type="text"
                             placeholder="Key Name (e.g., 'Integration for Blog')"
                             value={keyName}
                             onChange={(e) => setKeyName(e.target.value)}
                             required
-                            className="w-full p-3 bg-white border border-gray-300 rounded-lg focus:ring-1 focus:ring-gray-900 focus:outline-none placeholder-gray-500 text-sm"
+                            className="w-full p-2 bg-white border border-neutral-300 rounded-md focus:ring-1 focus:ring-neutral-900 focus:outline-none placeholder-neutral-500 text-sm"
                             disabled={isLoading}
                         />
                         {error && <p className="text-red-500 text-sm">{error}</p>}
@@ -170,7 +174,6 @@ const ApiKeysDashboard = () => {
 
 
     const handleRevoke = async (keyId, state) => {
-        if (!window.confirm("Are you sure you want to permanently revoke this API key? This cannot be undone.")) return;
 
         setIsLoading(true);
         setMessage(null);
@@ -239,12 +242,12 @@ const ApiKeysDashboard = () => {
                     </p>
                 </header>
 
-                {message && (
+                {/* {message && (
                     <div className={`mb-4 p-3 rounded-lg text-sm font-medium ${message.type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
                         {message.text}
                     </div>
                 )}
-                
+                 */}
                 {/* Key List / Skeleton Loader */}
             
                 <div className="bg-white rounded-xl overflow-hidden">
@@ -257,12 +260,12 @@ const ApiKeysDashboard = () => {
                                     You have no API keys. Click "New Key" to create one.
                                 </p>
                             ) : (
-                                <div className='container-full center overflow-hidden rounded-lg pb-3'>
-                                     <ScrollArea className={cn('container-full max-h-[70vh]! center flex-col justify-start! p-2.5')}>
+                                <div className='container-full! center overflow-hidden rounded-lg mb-3'>
+                                     <ScrollArea className={cn('container-full max-h-[75vh]! rounded-md center flex-col justify-start! p-2.5')}>
                                     {keys.map((key) => (
                                        <div 
                                         key={key.id} 
-                                        className={`w-full rounded-lg mb-3 border p-4 shadow-lg shadow-neutral-200 transition-all duration-200 ${key.isActive
+                                        className={`w-full rounded-lg mb-4 border p-4 shadow-neutral-200 transition-all duration-200 ${key.isActive
                                             ? 'border-black/20 bg-neutral-100 hover:bg-neutral-200'
                                             : 'border-black/10 bg-neutral-200/50 opacity-70 hover:opacity-100'
                                         }`}
@@ -278,7 +281,7 @@ const ApiKeysDashboard = () => {
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
                                                 </div>
                                                 <div className="flex flex-col">
-                                                    <p className="text-sm font-bold tracking-wide uppercase text-gray-900">
+                                                    <p className="text-sm font-semibold tracking-wide text-neutral-900">
                                                         {key.name}
                                                     </p>
                                                     <div className="flex items-center text-xs font-semibold text-black/70">
@@ -295,8 +298,8 @@ const ApiKeysDashboard = () => {
                                                     <button
                                                         onClick={() => handleRevoke(key.id, key.isActive === true ? false : true)}
                                                         disabled={isDataLoading}
-                                                        className="h-8 w-fit p-2 text-xs cente transition-colors hover:bg-neutral-300 rounded-full"
-                                                        title="Revoke Key"
+                                                        className="h-8 w-fit p-2 text-xs center text-white transition-colors bg-black hover:bg-neutral-500 rounded-sm"
+                                                    
                                                     >
                                                        {key.isActive ? "revoke" : "unrevoke"}
                                                     </button>
