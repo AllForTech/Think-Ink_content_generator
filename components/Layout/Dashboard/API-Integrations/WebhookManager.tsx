@@ -73,7 +73,7 @@ const WebhookFormDialog = ({ isOpen, onClose, initialData, onSave, status, messa
     // Decrypt the key for presentation in the form
     const decryptedData = initialData ? {
       ...initialData,
-      secret_key: mockDecrypt(initialData.secret_key)
+      secret_key: ""
     } : { ...defaultWebhook, secret_key: crypto.randomUUID() };
 
     setFormData(decryptedData);
@@ -153,7 +153,7 @@ const WebhookFormDialog = ({ isOpen, onClose, initialData, onSave, status, messa
 
           {/* URL Input */}
           <div className={'space-y-2.5'}>
-            <Label icon={Link} className={'text-xs'} htmlFor="url">Destination Endpoint URL</Label>
+            <Label icon={Link} className={'text-xs font-semibold'} htmlFor="url">Destination Endpoint URL</Label>
             <Input
               id="url"
               type="url"
@@ -170,7 +170,7 @@ const WebhookFormDialog = ({ isOpen, onClose, initialData, onSave, status, messa
 
           {/* Secret Key Input */}
           <div className={'space-y-2.5'}>
-            <Label htmlFor="secret" className={'text-xs'} icon={Key}>Secret Key / Validation Token</Label>
+            <Label htmlFor="secret" className={'text-xs font-semibold'} icon={Key}>Secret Key / Validation Token</Label>
             <div className="flex space-x-2">
               <Input
                 id="secret"
@@ -228,7 +228,7 @@ const WebhookFormDialog = ({ isOpen, onClose, initialData, onSave, status, messa
           <div className="flex space-x-4">
             {/* Trigger Event Dropdown */}
             <div className="flex-1 space-y-2.5">
-              <Label htmlFor="trigger" className={'text-xs'} icon={Zap}>Trigger Event</Label>
+              <Label htmlFor="trigger" className={'text-xs font-semibold'} icon={Zap}>Trigger Event</Label>
               <DropdownMenu>
                 <DropdownMenuTrigger 
                   onClick={() => setIsDropdownOpen(p => !p)} 
@@ -257,7 +257,7 @@ const WebhookFormDialog = ({ isOpen, onClose, initialData, onSave, status, messa
 
             {/* Active Status Switch */}
             <div className="flex-1 space-y-2.5">
-              <Label htmlFor="active" className={'text-xs'} icon={Zap}>Status: {formData.is_active ? 'Active' : 'Disabled'}</Label>
+              <Label htmlFor="active" className={'text-xs font-semibold'} icon={Zap}>Status: {formData.is_active ? 'Active' : 'Disabled'}</Label>
               <div className="flex items-center h-10 px-3 pt-1">
                 <Switch
                   checked={formData.is_active}
@@ -272,10 +272,10 @@ const WebhookFormDialog = ({ isOpen, onClose, initialData, onSave, status, messa
         {/* Dialog Footer */}
         <div className="flex justify-end p-6 border-t border-neutral-200 bg-neutral-50 rounded-b-xl">
           <div className="flex space-x-2">
-            <Button className={cn('transition-300 hover:bg-neutral-300 rounded-sm text-xs')} onClick={handleClose} disabled={messageBox.status === 'loading'}>
+            <Button className={cn('transition-300 bg-neutral-50 hover:bg-neutral-300 rounded-sm text-black font-semibold text-xs')} onClick={handleClose} disabled={messageBox.status === 'loading'}>
               Cancel
-            </Button>
-            <Button  className={cn('bg-black transition-300 text-xs rounded-sm hover:bg-neutral-800')} onClick={handleSave} disabled={messageBox.status === 'loading'}>
+            </Button> 
+            <Button  className={cn('bg-black transition-300 font-semibold text-xs rounded-sm hover:bg-neutral-800')} onClick={handleSave} disabled={messageBox.status === 'loading'}>
               {messageBox.status === 'loading' ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
               {isEditing ? 'Save Changes' : 'Add Webhook'}
             </Button>

@@ -28,7 +28,7 @@ export const UserAvatar = () => {
     return (
       <Button
         onClick={() => router.push('/sign-in')}
-        className="hover:bg-opacity-80 bg-black text-white"
+        className="hover:bg-opacity-80 text-xs! py-1! mt-1.5 font-semibold bg-black text-white"
       >
         Sign In
       </Button>

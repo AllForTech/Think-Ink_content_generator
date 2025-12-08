@@ -30,9 +30,9 @@ const Settings = () => {
   };
 
   return (
-    <div className="w-full h-full mx-auto p-4 md:p-6 lg:p-8 bg-white dark:bg-neutral-950 text-neutral-900 dark:text-neutral-100">
+    <div className="w-full h-full mx-auto p-2 md:p-3 lg:p-4 bg-white dark:bg-neutral-950 text-neutral-900 dark:text-neutral-100">
       <div className="flex flex-col md:flex-row">
-        <aside className="w-full md:w-1/4 lg:w-1/5 p-4">
+        <aside className="w-full md:w-1/4 lg:w-1/5 p-3">
           <h2 className="text-2xl font-bold mb-6">Settings</h2>
           <nav className="flex flex-row md:flex-col gap-2">
             <Button
@@ -58,8 +58,8 @@ const Settings = () => {
             </Button>
           </nav>
         </aside>
-        <main className="w-full md:w-3/4 lg:w-4/5 p-4 md:p-6 lg:p-8">
-          {renderContent()}
+        <main className="w-full md:w-3/4 lg:w-4/5 p-3 md:p-4 lg:p-5">
+         
         </main>
       </div>
       <Toaster />

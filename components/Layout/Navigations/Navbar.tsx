@@ -38,14 +38,6 @@ export const Navbar = () => {
 
           {/* Right: Actions and Avatar */}
           <div className={'center gap-5'}>
-            {pathname.startsWith('/dashboard/generate') && (
-              <button
-                onClick={() => setIsDialogOpen(!isDialogOpen)}
-                className="container-fit text-xs bg-neutral-900 rounded-md py-1.5 px-3 text-white hover:bg-neutral-700 transition-colors"
-              >
-                send
-              </button>
-            )}
 
             {/* Desktop Avatar */}
             <div className="hidden items-center space-x-4 md:flex">
