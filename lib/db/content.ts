@@ -1,8 +1,10 @@
 'use server';
 import { createClient } from '@/utils/supabase/server';
 import { db } from '@/db';
-import { contents, userContents } from '@/drizzle/schema';
-import { and, desc, eq } from 'drizzle-orm';
+import { v4 as uuidv4 } from 'uuid';
+import * as bcrypt from 'bcryptjs';
+import { apiKeys, contents, userContents } from '@/drizzle/schema';
+import { and, desc, eq, sql } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 export interface WebhookCredentials {
   id: string;
@@ -21,7 +23,7 @@ interface ScheduledJob {
   job_id: string;
   cronSchedule: string;
   frequency: string;
-  time: string; // e.g., '09:30'
+  time: string;
   isActive: boolean;
   runSlot: string;
   referenceUrls: string[];
@@ -556,4 +558,157 @@ export async function getWebhookCredentials() {
     console.error('Webhook fetch execution failed:', error.message);
     throw error;
   }
+}
+
+
+export async function fetchContentsFromDB(limit = 10, versions = 3, userId?: string, contentId?: string) {
+
+    try{
+      const relationConfig = {
+        limit: versions, 
+        orderBy: [desc(userContents.createdAt)],
+      }
+
+      const userIdClause = userId ? eq(contents.authorId, userId) : undefined;
+      const contentIdClause = userId ? eq(contents.contentId, contentId) : undefined;
+
+
+      const results = await db.query.contents.findMany({
+      limit: limit,
+      where: and(userIdClause, contentIdClause),
+
+      with: {
+        versions: relationConfig,
+      },
+      orderBy: (contents, { desc }) => [desc(contents.createdAt)], 
+    });
+
+    return results;
+
+    }catch (e){
+      console.error(e.message);
+      throw e;
+    }
+}
+
+export async function generateAndStoreNewApiKey(keyName: string): Promise<string> {
+  const SALT_ROUNDS = 10;
+
+  // Generate a secure, unique plaintext key (e.g., sk_prefix_longrandomstring)
+  const prefix = "sk_ai_"; // Secret Key prefix
+  // Generate a random part using UUID and basic string manipulation
+  const randomPart = Buffer.from(uuidv4()).toString('base64').replace(/=/g, '').slice(0, 32);
+  const plainTextKey = `${prefix}${randomPart}`;
+  
+  // Hash the key before storing it
+  const keyHash = await bcrypt.hash(plainTextKey, SALT_ROUNDS);
+  
+  try {
+     const supabase = await createClient();
+
+    const { data: userData, error: authError } = await supabase.auth.getUser();
+
+    if (authError || !userData?.user) {
+      console.error('Authentication Error:', authError?.message || 'User not logged in.');
+      throw new Error('User authentication required to create API keys.');
+    }
+
+    // Save the HASH and related metadata to the database
+    await db.insert(apiKeys).values({
+      keyHash: keyHash,
+      userId: userData.user.id,
+      name: keyName,
+      // Default values (isActive, createdAt) are handled by Drizzle/PostgreSQL defaults
+    });
+
+    // Return the plaintext key (the one the user needs to copy)
+    return plainTextKey;
+
+  } catch (e: any) {
+    console.error('Error saving API Key hash:', e);
+    throw new Error('Failed to generate and store API key.');
+  }
+}
+
+
+export async function resolveUserIdFromApiKey(plainTextKey: string): Promise<string | null> {
+    
+   
+    const activeKeys = await db.select({
+      id: apiKeys.id,
+      keyHash: apiKeys.keyHash,
+      userId: apiKeys.userId,
+    })
+    .from(apiKeys)
+    .where(sql`${apiKeys.isActive} = TRUE`); 
+    
+    for (const keyRecord of activeKeys) {
+        // Use bcrypt.compare to check the plaintext key against the stored hash
+        if (await bcrypt.compare(plainTextKey, keyRecord.keyHash)) {
+            // Update lastUsed timestamp on successful verification (Optional but recommended)
+            await db.update(apiKeys)
+                .set({ lastUsed: sql`now()` }) // Use SQL function for current time
+                .where(sql`${apiKeys.id} = ${keyRecord.id}`);
+
+            return keyRecord.userId;
+        }
+    }
+
+    return null;
+}
+
+
+export async function fetchUserApiKeys() {
+    try {
+        const supabase = await createClient();
+
+        const { data: userData, error: authError } = await supabase.auth.getUser();
+
+        if (authError || !userData?.user) {
+          console.error('Authentication Error:', authError?.message || 'User not logged in.');
+          throw new Error('User authentication required to fetch API keys.');
+        }
+
+        const keys = await db.select({
+            id: apiKeys.id,
+            name: apiKeys.name,
+            isActive: apiKeys.isActive,
+            createdAt: apiKeys.createdAt,
+            lastUsed: apiKeys.lastUsed,
+        })
+        .from(apiKeys)
+        .where(eq(apiKeys.userId, userData.user.id))
+        .orderBy(desc(apiKeys.createdAt));
+
+        return keys;
+    } catch (e) {
+        console.error('Error fetching API keys:', e);
+        throw new Error('Failed to retrieve keys from database.');
+    }
+}
+
+
+export async function revokeOrUnrevokeApiKey(keyId: string, state: boolean): Promise<boolean> {
+    try {
+        const supabase = await createClient();
+
+        const { data: userData, error: authError } = await supabase.auth.getUser();
+
+        if (authError || !userData?.user) {
+          console.error('Authentication Error:', authError?.message || 'User not logged in.');
+          throw new Error('User authentication required to revoke API keys.');
+        }
+
+        const userId = userData.user.id;
+        // Only allow the key owner to revoke the key, and only if it's currently active.
+        const result = await db.update(apiKeys)
+            .set({ isActive: state })
+            .where(sql`${apiKeys.id} = ${keyId} AND ${apiKeys.userId} = ${userId}`)
+            .returning({ id: apiKeys.id });
+
+        return result.length > 0; // If one row was returned, the update was successful.
+    } catch (e) {
+        console.error('Error revoking API key:', e);
+        throw new Error('Failed to revoke key.');
+    }
 }

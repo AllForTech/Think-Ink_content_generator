@@ -39,7 +39,8 @@ const navigation = [
     title: 'Other',
     items: [
       { href: '/dashboard/explore', icon: Globe, label: 'Explore Tools' },
-      { href: '/dashboard/api-integrations', icon: Globe, label: 'API Intgrations' },
+      { href: '/dashboard/webhooks', icon: Globe, label: 'Webhook Intgrations' },
+      { href: '/dashboard/apikeys', icon: Globe, label: 'Api Keys' },
     ],
   },
 ];

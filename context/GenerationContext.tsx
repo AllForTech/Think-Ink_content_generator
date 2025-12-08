@@ -48,6 +48,8 @@ export const contentRendererTabsState = {
   templates: 'templates'
 };
 
+const API_Endpoint = '/api/contents';
+
 // --- 1. Define the Context Interface (What components can access) ---
 interface GenerationContextType {
   // The final structured output from the AI
@@ -265,7 +267,7 @@ export function ContextProvider({ children }: { children: ReactNode }) {
         formData.append('document', blob, file.name); // 'document' is the expected field name on your server
       }
 
-      const response = await fetch(`/api/generate/${content_id}/${sessionId}`, {
+      const response = await fetch(`${API_Endpoint}/${content_id}/${sessionId}`, {
         method: 'POST',
         body: formData,
       });

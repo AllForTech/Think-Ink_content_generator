@@ -3,11 +3,11 @@
   "framework": "nextjs",
   "crons": [
     {
-      "path": "/api/scheduled/content_generate/early",
+      "path": "/api/schedule/content/early",
       "schedule": "0 9 * * *"
     },
     {
-      "path": "/api/scheduled/content_generate/later",
+      "path": "/api/schedule/content/later",
       "schedule": "0 17 * * *"
     }
   ]

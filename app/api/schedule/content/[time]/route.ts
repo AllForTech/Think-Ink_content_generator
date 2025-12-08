@@ -9,7 +9,7 @@ interface Context {
   };
 }
 
-const API_ENDPOINT = 'http://localhost:3000/api/scheduled';
+const API_ENDPOINT = 'http://localhost:3000/api/schedule';
 
 export async function GET(request: NextRequest, context: Context) {
   const { time } = await context.params;
