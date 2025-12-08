@@ -688,7 +688,7 @@ export async function fetchUserApiKeys() {
 }
 
 
-export async function revokeOrUnrevokeApiKey(keyId: string, state = false): Promise<boolean> {
+export async function revokeOrUnrevokeApiKey(keyId: string, state: boolean): Promise<boolean> {
     try {
         const supabase = await createClient();
 

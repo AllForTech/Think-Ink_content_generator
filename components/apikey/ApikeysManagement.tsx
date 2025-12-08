@@ -174,7 +174,7 @@ const ApiKeysDashboard = () => {
         setMessage(null);
 
         try {
-            const response = await revokeOrUnrevokeApiKey(keyId, !state);
+            const response = await revokeOrUnrevokeApiKey(keyId, state);
             if (response) {
                 setMessage({ type: 'success', text: "Key revoke successfully" });
                 fetchKeys(); // Refresh the list
@@ -289,7 +289,7 @@ const ApiKeysDashboard = () => {
                                                 {/* REVOKE BUTTON (Subtle, Icon-only) */}
                                                 
                                                     <button
-                                                        onClick={() => handleRevoke(key.id, key.isActive)}
+                                                        onClick={() => handleRevoke(key.id, key.isActive === true ? false : true)}
                                                         disabled={isDataLoading}
                                                         className="h-8 w-8 p-0 center text-red-600 transition-colors hover:bg-neutral-300 hover:text-red-800 rounded-full"
                                                         title="Revoke Key"
