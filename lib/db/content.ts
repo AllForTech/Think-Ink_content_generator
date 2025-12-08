@@ -703,7 +703,7 @@ export async function revokeOrUnrevokeApiKey(keyId: string, state: boolean): Pro
         // Only allow the key owner to revoke the key, and only if it's currently active.
         const result = await db.update(apiKeys)
             .set({ isActive: state })
-            .where(sql`${apiKeys.id} = ${keyId} AND ${apiKeys.userId} = ${userId} AND ${apiKeys.isActive} = TRUE`)
+            .where(sql`${apiKeys.id} = ${keyId} AND ${apiKeys.userId} = ${userId}`)
             .returning({ id: apiKeys.id });
 
         return result.length > 0; // If one row was returned, the update was successful.

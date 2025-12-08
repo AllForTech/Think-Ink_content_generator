@@ -176,7 +176,7 @@ const ApiKeysDashboard = () => {
         try {
             const response = await revokeOrUnrevokeApiKey(keyId, state);
             if (response) {
-                setMessage({ type: 'success', text: "Key revoke successfully" });
+                setMessage({ type: 'success', text: state === false ? "Key revoke successfully" : "Key unrevoked successfully." });
                 fetchKeys(); // Refresh the list
             } else {
                 setMessage({ type: 'error', text: 'Failed to revoke key.' });
@@ -291,10 +291,10 @@ const ApiKeysDashboard = () => {
                                                     <button
                                                         onClick={() => handleRevoke(key.id, key.isActive === true ? false : true)}
                                                         disabled={isDataLoading}
-                                                        className="h-8 w-8 p-0 center text-red-600 transition-colors hover:bg-neutral-300 hover:text-red-800 rounded-full"
+                                                        className="h-8 w-fit p-2 text-xs cente transition-colors hover:bg-neutral-300 rounded-full"
                                                         title="Revoke Key"
                                                     >
-                                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                                       {key.isActive ? "revoke" : "unrevoke"}
                                                     </button>
                                             
                                             </div>
