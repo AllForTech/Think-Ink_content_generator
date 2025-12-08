@@ -557,3 +557,29 @@ export async function getWebhookCredentials() {
     throw error;
   }
 }
+
+
+export async function fetchContentsFromDB(limit = 10, versions = 3) {
+
+    try{
+      let relationConfig = {
+        limit: versions, 
+        orderBy: [desc(userContents.createdAt)],
+      }
+
+      const results = await db.query.contents.findMany({
+      limit: limit,
+
+      with: {
+        versions: relationConfig,
+      },
+      orderBy: (contents, { desc }) => [desc(contents.createdAt)], 
+    });
+
+    return results;
+
+    }catch (e){
+      console.error(e.message);
+      throw e;
+    }
+}
