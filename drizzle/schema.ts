@@ -8,7 +8,7 @@ import {
   pgSchema,
   boolean,
 } from 'drizzle-orm/pg-core';
-import { relations } from 'drizzle-orm';
+import { relations, sql } from 'drizzle-orm';
 
 const authSchema = pgSchema('auth');
 export const users = authSchema.table('users', {
@@ -98,11 +98,37 @@ export const userContents = pgTable(
   },
 );
 
+export const apiKeys = pgTable("api_keys", {
+  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  // Storing the HASH of the API key (MANDATORY for security)
+  keyHash: text("key_hash").notNull().unique(), 
+  
+  // Link back to the user who owns this key
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }), // Link to the user
+  
+  name: text("name").notNull(), // E.g., "Integration Key for Mobile App"
+  isActive: boolean("is_active").default(true).notNull(),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  lastUsed: timestamp("last_used"),
+});
+
+
 // Relations for 'userContents'
 export const userContentsRelations = relations(userContents, ({ one }) => ({
   // Defines the 'one' master content record this version belongs to.
   masterContent: one(contents, {
     fields: [userContents.contentId],
     references: [contents.contentId],
+  }),
+}));
+
+export const apiKeysRelations = relations(apiKeys, ({ one }) => ({
+  owner: one(users, {
+    fields: [apiKeys.userId],
+    references: [users.id],
   }),
 }));

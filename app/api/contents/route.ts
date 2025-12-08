@@ -1,21 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { fetchContentsFromDB } from '@/lib/db/content';
+import { fetchContentsFromDB, resolveUserIdFromApiKey } from '@/lib/db/content';
 
 export const runtime = 'nodejs';
 
-
-const API_KEY = process.env.EXTERNAL_API_KEY;
 
 export async function GET(request: NextRequest) {
   try {
     const apiKey = request.headers.get('x-api-key');
 
-    // if (!API_KEY || apiKey !== API_KEY) {
-    //   return NextResponse.json(
-    //     { error: 'Unauthorized: Invalid or missing API Key' },
-    //     { status: 401 }
-    //   );
-    // }
+    if (!apiKey) {
+      return NextResponse.json(
+        { error: 'Unauthorized: Invalid or missing API Key' },
+        { status: 401 }
+      );
+    }
+
+    const authenticatedUserId = await resolveUserIdFromApiKey(apiKey);
+
+    if (!authenticatedUserId) {
+      return NextResponse.json(
+        { error: 'Unauthorized: Invalid or revoked API Key.' },
+        { status: 401 }
+      );
+    }
 
 
     const searchParams = request.nextUrl.searchParams;
