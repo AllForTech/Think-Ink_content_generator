@@ -136,6 +136,7 @@ export const Source = () => {
   );
 };
 
+
 export const Images = ({ width = 400}) => {
   const { generatedContent, setGeneratedContent, localImages, setLocalImages } = useContent();
 
@@ -161,41 +162,76 @@ export const Images = ({ width = 400}) => {
 
   // MAINTAINED LOGIC: Handle file upload
   const handleFileUpload = useCallback(
-    (event) => {
-      const file = event.target.files[0];
-      if (file) {
-        if (!file.type.startsWith('image/')) {
-          toast.error('Only image files are allowed.');
-          return;
+    async (event: React.ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+      if (!file) return;
+
+      if (!file.type.startsWith('image/')) {
+        toast.error('Only image files are allowed.');
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('image', file);
+
+      try {
+        const response = await fetch('/api/images', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Upload failed');
         }
 
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          const base64Url = reader.result;
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-expect-error
-          setLocalImages((prev) => [base64Url, ...prev]);
-          toast.success('Image uploaded locally.');
-          event.target.value = null; // Reset file input
-        };
-        reader.readAsDataURL(file);
+        const { publicUrl } = await response.json();
+        
+        setLocalImages((prev: string[]) => [publicUrl, ...prev]);
+        toast.success('Image uploaded successfully!');
+      } catch (error) {
+        console.error('Upload error:', error);
+        toast.error((error as Error).message);
+      } finally {
+        event.target.value = ''; // Reset file input
       }
     },
     [setLocalImages],
   );
 
-  // MAINTAINED LOGIC: Handler to remove a local image
   const handleRemoveLocalImage = useCallback(
-    (urlToRemove: string) => {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-expect-error
-      setLocalImages((image: string[]) => image.filter((url) => url !== urlToRemove));
+    async (urlToRemove: string) => {
+      try {
+        const response = await fetch('/api/images', {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ publicUrl: urlToRemove }),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Failed to delete image');
+        }
+
+        setLocalImages((prev: string[]) => prev.filter((url) => url !== urlToRemove));
+        toast.success('Image deleted successfully!');
+      } catch (error) {
+        console.error('Delete error:', error);
+        toast.error((error as Error).message);
+      }
     },
     [setLocalImages],
   );
 
-  // MAINTAINED LOGIC: Check if the URL came from local upload
-  const isLocalImage = (url) => url.startsWith('data:image/');
+  // Check if the URL came from local upload (now from Supabase)
+  const isLocalImage = useCallback(
+    (url: string) => {
+      return localImages.includes(url);
+    },
+    [localImages],
+  );
 
   const hasImages = allImageUrls.length > 0;
 
